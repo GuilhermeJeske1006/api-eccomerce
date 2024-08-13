@@ -1,0 +1,2194 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Api eccomerce",
+        "contact": {
+            "email": "guilhermeieski@gmail.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/categorias": {
+            "get": {
+                "tags": [
+                    "Categoria"
+                ],
+                "summary": "Get list of categorias",
+                "description": "Returns a list of categorias",
+                "operationId": "getCategorias",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found"
+                    }
+                }
+            }
+        },
+        "/api/comentario/criar": {
+            "post": {
+                "tags": [
+                    "Comentario"
+                ],
+                "summary": "Create a new comentario",
+                "description": "Creates a new comentario associated with a produto and usuario",
+                "operationId": "storeComentario",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "descricao",
+                                    "estrela",
+                                    "produto_id",
+                                    "usuario_id"
+                                ],
+                                "properties": {
+                                    "descricao": {
+                                        "type": "string",
+                                        "example": "Ótimo produto! Recomendo."
+                                    },
+                                    "estrela": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "produto_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "usuario_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Comentario criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Comentario criado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro de validação"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "descricao": [
+                                                    "A descrição é obrigatória."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao criar comentario",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao criar comentario"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Mensagem de erro detalhada"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/empresa/criar": {
+            "post": {
+                "tags": [
+                    "Empresa"
+                ],
+                "summary": "Cria uma nova empresa",
+                "operationId": "3a3fdbfb18841c61bb7aec4763500310",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nome",
+                                    "email",
+                                    "cor",
+                                    "endereco"
+                                ],
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "Minha Empresa"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "empresa@example.com"
+                                    },
+                                    "cnpj": {
+                                        "type": "string",
+                                        "example": "00.000.000/0000-00"
+                                    },
+                                    "cor": {
+                                        "type": "string",
+                                        "example": "azul"
+                                    },
+                                    "logo": {
+                                        "type": "",
+                                        "format": "binary"
+                                    },
+                                    "whatsapp": {
+                                        "type": "string",
+                                        "example": "+55 11 99999-9999"
+                                    },
+                                    "instagram": {
+                                        "type": "string",
+                                        "example": "minhaempresa_insta"
+                                    },
+                                    "facebook": {
+                                        "type": "string",
+                                        "example": "minhaempresa_face"
+                                    },
+                                    "telefone": {
+                                        "type": "string",
+                                        "example": "+55 11 8888-8888"
+                                    },
+                                    "descricao": {
+                                        "type": "string",
+                                        "example": "Descrição da minha empresa"
+                                    },
+                                    "palavras_chaves": {
+                                        "type": "string",
+                                        "example": "empresa, negócios, produtos"
+                                    },
+                                    "titulo": {
+                                        "type": "string",
+                                        "example": "Título da minha empresa"
+                                    },
+                                    "endereco": {
+                                        "required": [
+                                            "rua",
+                                            "cidade",
+                                            "estado",
+                                            "cep",
+                                            "pais",
+                                            "numero",
+                                            "bairro"
+                                        ],
+                                        "properties": {
+                                            "rua": {
+                                                "type": "string",
+                                                "example": "Rua da Empresa"
+                                            },
+                                            "cidade": {
+                                                "type": "string",
+                                                "example": "São Paulo"
+                                            },
+                                            "estado": {
+                                                "type": "string",
+                                                "example": "SP"
+                                            },
+                                            "cep": {
+                                                "type": "string",
+                                                "example": "01000-000"
+                                            },
+                                            "pais": {
+                                                "type": "string",
+                                                "example": "Brasil"
+                                            },
+                                            "numero": {
+                                                "type": "string",
+                                                "example": "123"
+                                            },
+                                            "bairro": {
+                                                "type": "string",
+                                                "example": "Centro"
+                                            },
+                                            "complemento": {
+                                                "type": "string",
+                                                "example": "Sala 101"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Empresa cadastrada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Empresa cadastrada com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro de validação nos campos"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno no servidor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao cadastrar empresa"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/empresa/{id}": {
+            "get": {
+                "tags": [
+                    "Empresa"
+                ],
+                "summary": "Get empresa by id",
+                "operationId": "ee65f25e5fe4a898ac866a4e3d5e1cb6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the empresa",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "nome": {
+                                            "type": "string"
+                                        },
+                                        "endereco": {
+                                            "properties": {
+                                                "logradouro": {
+                                                    "type": "string"
+                                                },
+                                                "cidade": {
+                                                    "type": "string"
+                                                },
+                                                "estado": {
+                                                    "type": "string"
+                                                },
+                                                "cep": {
+                                                    "type": "string"
+                                                },
+                                                "pais": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "logo": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Empresa não encontrada"
+                    }
+                }
+            }
+        },
+        "/api/empresa/editar/{id}": {
+            "put": {
+                "tags": [
+                    "Empresa"
+                ],
+                "summary": "Atualiza uma empresa existente",
+                "operationId": "3d644c65c4cbfde91fcf9daf424c3c2a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID da empresa a ser atualizada",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nome",
+                                    "email",
+                                    "cor",
+                                    "endereco"
+                                ],
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "Nova Empresa"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "novaempresa@example.com"
+                                    },
+                                    "cor": {
+                                        "type": "string",
+                                        "example": "vermelho"
+                                    },
+                                    "logo": {
+                                        "type": "string",
+                                        "example": "base64-encoded-image-data"
+                                    },
+                                    "whatsapp": {
+                                        "type": "string",
+                                        "example": "+55 11 99999-9999"
+                                    },
+                                    "instagram": {
+                                        "type": "string",
+                                        "example": "novaempresa_insta"
+                                    },
+                                    "facebook": {
+                                        "type": "string",
+                                        "example": "novaempresa_face"
+                                    },
+                                    "telefone": {
+                                        "type": "string",
+                                        "example": "+55 11 8888-8888"
+                                    },
+                                    "descricao": {
+                                        "type": "string",
+                                        "example": "Nova descrição da empresa"
+                                    },
+                                    "palavras_chaves": {
+                                        "type": "string",
+                                        "example": "novaempresa, negócios, produtos"
+                                    },
+                                    "titulo": {
+                                        "type": "string",
+                                        "example": "Novo título da empresa"
+                                    },
+                                    "cnpj": {
+                                        "description": "Número do CNPJ da empresa",
+                                        "type": "string",
+                                        "example": "12345678901234"
+                                    },
+                                    "endereco": {
+                                        "required": [
+                                            "rua",
+                                            "cidade",
+                                            "estado",
+                                            "cep",
+                                            "pais",
+                                            "numero",
+                                            "bairro"
+                                        ],
+                                        "properties": {
+                                            "rua": {
+                                                "type": "string",
+                                                "example": "Nova Rua da Empresa"
+                                            },
+                                            "cidade": {
+                                                "type": "string",
+                                                "example": "São Paulo"
+                                            },
+                                            "estado": {
+                                                "type": "string",
+                                                "example": "SP"
+                                            },
+                                            "cep": {
+                                                "type": "string",
+                                                "example": "02000-000"
+                                            },
+                                            "pais": {
+                                                "type": "string",
+                                                "example": "Brasil"
+                                            },
+                                            "numero": {
+                                                "type": "string",
+                                                "example": "456"
+                                            },
+                                            "bairro": {
+                                                "type": "string",
+                                                "example": "Centro"
+                                            },
+                                            "complemento": {
+                                                "type": "string",
+                                                "example": "Sala 202"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Empresa atualizada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Empresa atualizada com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro de validação nos campos"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Empresa não encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Empresa não encontrada"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno no servidor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao atualizar empresa"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/empresa/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Empresa"
+                ],
+                "summary": "Delete empresa by id",
+                "operationId": "01a4a40d6f0b1516d6dc1f8d4a759140",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the empresa",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Empresa excluída com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Empresa excluída com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Empresa não encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Empresa não encontrada"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/endereco/criar": {
+            "post": {
+                "tags": [
+                    "Endereco"
+                ],
+                "summary": "Store address",
+                "operationId": "be2785e89a551eabe488bbf22f071630",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "cep",
+                                    "rua",
+                                    "numero",
+                                    "bairro",
+                                    "cidade",
+                                    "estado",
+                                    "pais"
+                                ],
+                                "properties": {
+                                    "cep": {
+                                        "type": "string",
+                                        "example": "string"
+                                    },
+                                    "rua": {
+                                        "type": "string",
+                                        "example": "string"
+                                    },
+                                    "numero": {
+                                        "type": "string",
+                                        "example": "string"
+                                    },
+                                    "bairro": {
+                                        "type": "string",
+                                        "example": "string"
+                                    },
+                                    "cidade": {
+                                        "type": "string",
+                                        "example": "string"
+                                    },
+                                    "estado": {
+                                        "type": "string",
+                                        "example": "string"
+                                    },
+                                    "pais": {
+                                        "type": "string",
+                                        "example": "Brasil"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/endereco/editar/{id}": {
+            "put": {
+                "tags": [
+                    "Endereco"
+                ],
+                "summary": "Update address",
+                "operationId": "bfcf62c1aa87274844c2f136779f6be5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of address to update",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "cep",
+                                    "rua",
+                                    "numero",
+                                    "bairro",
+                                    "cidade",
+                                    "estado",
+                                    "pais"
+                                ],
+                                "properties": {
+                                    "cep": {
+                                        "type": "string",
+                                        "example": "12345678"
+                                    },
+                                    "rua": {
+                                        "type": "string",
+                                        "example": "Rua Exemplo"
+                                    },
+                                    "numero": {
+                                        "type": "string",
+                                        "example": "123"
+                                    },
+                                    "bairro": {
+                                        "type": "string",
+                                        "example": "Bairro Exemplo"
+                                    },
+                                    "cidade": {
+                                        "type": "string",
+                                        "example": "Cidade Exemplo"
+                                    },
+                                    "estado": {
+                                        "type": "string",
+                                        "example": "Estado Exemplo"
+                                    },
+                                    "pais": {
+                                        "type": "string",
+                                        "example": "Brasil"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/endereco/cep/{cep}": {
+            "get": {
+                "tags": [
+                    "Endereco"
+                ],
+                "summary": "Recebe um cep e retorna informações do CEP",
+                "operationId": "38b91af5e441ff06b61c33dd790f0d0b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "cep"
+                                ],
+                                "properties": {
+                                    "cep": {
+                                        "description": "CEP do endereço",
+                                        "type": "string",
+                                        "example": "01001000"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Dados do CEP",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "description": "Dados retornados da API ViaCEP",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "CEP não informado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "CEP não informado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/calculate-frete": {
+            "post": {
+                "tags": [
+                    "Frete"
+                ],
+                "summary": "Calcular Frete",
+                "operationId": "bb12842e9d8f9bf2816dfc4cc17faee6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "cep_destino",
+                                    "produtos",
+                                    "empresa_id"
+                                ],
+                                "properties": {
+                                    "cep_destino": {
+                                        "type": "string",
+                                        "example": "12345678"
+                                    },
+                                    "produtos": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "produtoId": {
+                                                    "type": "integer",
+                                                    "example": "2"
+                                                },
+                                                "quantidade": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "empresa_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Frete calculado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao calcular frete",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao calcular frete"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pedidos/{id}": {
+            "get": {
+                "tags": [
+                    "Pedidos"
+                ],
+                "summary": "Lista pedidos por usuário ou empresa",
+                "description": "Retorna uma lista de pedidos com base no usuário ou empresa fornecidos.",
+                "operationId": "getPedidos",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do usuário",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de pedidos",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pedidos não encontrados"
+                    }
+                }
+            }
+        },
+        "/api/pedido/{id}": {
+            "get": {
+                "tags": [
+                    "Pedidos"
+                ],
+                "summary": "Mostra um pedido específico pelo ID",
+                "description": "Retorna os detalhes de um pedido específico com base no ID fornecido.",
+                "operationId": "a1d998e3688f711975a47999b5a70c8f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do pedido",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes do pedido",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pedido não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pedido não encontrado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pagamento/boleto": {
+            "post": {
+                "tags": [
+                    "Pedidos"
+                ],
+                "summary": "Processa pagamento boleto",
+                "description": "Processa um pedido e retorna uma mensagem de sucesso ou erro",
+                "operationId": "processarPedidoBoleto",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "idUsuario": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "cpf": {
+                                        "type": "integer",
+                                        "example": "114.413.859-08"
+                                    },
+                                    "carrinho": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "preco": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 100
+                                                },
+                                                "quantidade": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "nome": {
+                                                    "type": "string",
+                                                    "example": "Produto 1"
+                                                },
+                                                "cor_id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "tamanho_id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "produtoId": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "vlrFrete": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 15
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pedido processado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pagamento realizado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao processar pedido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao processar pedido"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pagamento/credito": {
+            "post": {
+                "tags": [
+                    "Pedidos"
+                ],
+                "summary": "Processa pagamento credito",
+                "description": "Processa um pedido e retorna uma mensagem de sucesso ou erro",
+                "operationId": "processarPedido",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "idUsuario": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "cartao": {
+                                        "properties": {
+                                            "cpf": {
+                                                "type": "string",
+                                                "example": "114.413.859-08"
+                                            },
+                                            "exp_month": {
+                                                "type": "string",
+                                                "example": "12"
+                                            },
+                                            "exp_year": {
+                                                "type": "string",
+                                                "example": "2026"
+                                            },
+                                            "security_code": {
+                                                "type": "string",
+                                                "example": "123"
+                                            },
+                                            "number": {
+                                                "type": "string",
+                                                "example": "4111111111111111"
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "John Doe"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "carrinho": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "preco": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 100
+                                                },
+                                                "quantidade": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "nome": {
+                                                    "type": "string",
+                                                    "example": "Produto 1"
+                                                },
+                                                "cor_id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "tamanho_id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "produtoId": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "vlrFrete": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 15
+                                    },
+                                    "agencia": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "servico": {
+                                        "type": "string",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pedido processado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pagamento realizado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao processar pedido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao processar pedido"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pagamento/pix": {
+            "post": {
+                "tags": [
+                    "Pedidos"
+                ],
+                "summary": "Processa pagamento pix",
+                "description": "Processa um pedido e retorna uma mensagem de sucesso ou erro",
+                "operationId": "processarPedidoPix",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "idUsuario": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "cpf": {
+                                        "type": "integer",
+                                        "example": "114.413.859-08"
+                                    },
+                                    "carrinho": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "preco": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 100
+                                                },
+                                                "quantidade": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "nome": {
+                                                    "type": "string",
+                                                    "example": "Produto 1"
+                                                },
+                                                "cor_id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "tamanho_id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "produtoId": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "vlrFrete": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 15
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pedido processado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pagamento realizado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao processar pedido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao processar pedido"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/produto/{empresa_id}": {
+            "get": {
+                "tags": [
+                    "Produto"
+                ],
+                "summary": "Retorna uma lista de produtos",
+                "description": "Retorna uma lista de produtos",
+                "operationId": "index",
+                "parameters": [
+                    {
+                        "name": "empresa_id",
+                        "in": "path",
+                        "description": "Id da empresa",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Nome do produto",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "preco_minimo",
+                        "in": "query",
+                        "description": "Preço mínimo",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "preco_maximo",
+                        "in": "query",
+                        "description": "Preço máximo",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "categoria",
+                        "in": "query",
+                        "description": "Id da categoria",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Nenhum produto encontrado"
+                    }
+                }
+            }
+        },
+        "/api/produto/criar": {
+            "post": {
+                "tags": [
+                    "Produto"
+                ],
+                "summary": "Cria um produto",
+                "description": "Cria um produto",
+                "operationId": "store",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "Produto Exemplo"
+                                    },
+                                    "valor": {
+                                        "type": "number",
+                                        "example": 100
+                                    },
+                                    "largura": {
+                                        "type": "number",
+                                        "example": 11
+                                    },
+                                    "altura": {
+                                        "type": "number",
+                                        "example": 17
+                                    },
+                                    "comprimento": {
+                                        "type": "number",
+                                        "example": 11
+                                    },
+                                    "empresa_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "categoria_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "foto": {
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "descricao": {
+                                        "type": "string",
+                                        "example": "Descrição curta do produto"
+                                    },
+                                    "descricao_longa": {
+                                        "type": "string",
+                                        "example": "Descrição longa do produto"
+                                    },
+                                    "peso": {
+                                        "type": "number",
+                                        "example": "0.3"
+                                    },
+                                    "material": {
+                                        "type": "string",
+                                        "example": "Plástico"
+                                    },
+                                    "cores": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "cor": {
+                                                    "type": "string",
+                                                    "example": "Verde"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "tamanhos": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "tamanho": {
+                                                    "type": "string",
+                                                    "example": "P"
+                                                },
+                                                "qtdTamanho": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "cor_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "fotos": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "imagem": {
+                                                    "type": "string",
+                                                    "example": ""
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Produto criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Produto criado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao criar produto",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao criar produto"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/produto/{empresa_id}/{id}": {
+            "get": {
+                "tags": [
+                    "Produto"
+                ],
+                "summary": "Retorna um produto",
+                "description": "Retorna um produto",
+                "operationId": "show",
+                "parameters": [
+                    {
+                        "name": "empresa_id",
+                        "in": "path",
+                        "description": "Id da empresa",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do produto",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Produto não encontrado"
+                    }
+                }
+            }
+        },
+        "/api/produto/{id}": {
+            "put": {
+                "tags": [
+                    "Produto"
+                ],
+                "summary": "Atualizar Produto",
+                "operationId": "79676372602f656d77d498d2fe5aa44b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do produto a ser atualizado",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nome",
+                                    "valor",
+                                    "empresa_id",
+                                    "categoria_id"
+                                ],
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "Produto A"
+                                    },
+                                    "largura": {
+                                        "type": "number",
+                                        "example": 11
+                                    },
+                                    "altura": {
+                                        "type": "number",
+                                        "example": 17
+                                    },
+                                    "comprimento": {
+                                        "type": "number",
+                                        "example": 11
+                                    },
+                                    "valor": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 99.99
+                                    },
+                                    "empresa_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "categoria_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "foto": {
+                                        "type": "string",
+                                        "format": "base64",
+                                        "example": "base64_encoded_image_data"
+                                    },
+                                    "descricao": {
+                                        "type": "string",
+                                        "example": "Descrição curta do produto"
+                                    },
+                                    "descricao_longa": {
+                                        "type": "string",
+                                        "example": "Descrição longa do produto"
+                                    },
+                                    "peso": {
+                                        "type": "string",
+                                        "example": "500g"
+                                    },
+                                    "material": {
+                                        "type": "string",
+                                        "example": "Aço inoxidável"
+                                    },
+                                    "cores": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "nome": {
+                                                    "type": "string",
+                                                    "example": "Vermelho"
+                                                },
+                                                "codigo_hex": {
+                                                    "type": "string",
+                                                    "example": "#FF0000"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "tamanhos": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "nome": {
+                                                    "type": "string",
+                                                    "example": "Grande"
+                                                },
+                                                "quantidade": {
+                                                    "type": "integer",
+                                                    "example": 20
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "fotos": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "imagem": {
+                                                    "type": "string",
+                                                    "format": "base64",
+                                                    "example": "base64_encoded_image_data"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Produto atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Produto atualizado com sucesso"
+                                        },
+                                        "produto": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "nome": {
+                                                    "type": "string",
+                                                    "example": "Produto A"
+                                                },
+                                                "valor": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 99.99
+                                                },
+                                                "empresa_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "categoria_id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "foto": {
+                                                    "type": "string",
+                                                    "example": "https://s3.example.com/produtos/1234567890.png"
+                                                },
+                                                "descricao": {
+                                                    "type": "string",
+                                                    "example": "Descrição curta do produto"
+                                                },
+                                                "descricao_longa": {
+                                                    "type": "string",
+                                                    "example": "Descrição longa do produto"
+                                                },
+                                                "peso": {
+                                                    "type": "string",
+                                                    "example": "0.3"
+                                                },
+                                                "qtd": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "material": {
+                                                    "type": "string",
+                                                    "example": "Aço inoxidável"
+                                                },
+                                                "cores": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "nome": {
+                                                                "type": "string",
+                                                                "example": "Vermelho"
+                                                            },
+                                                            "codigo_hex": {
+                                                                "type": "string",
+                                                                "example": "#FF0000"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "tamanhos": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "nome": {
+                                                                "type": "string",
+                                                                "example": "Grande"
+                                                            },
+                                                            "quantidade": {
+                                                                "type": "integer",
+                                                                "example": 20
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "fotos": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "foto": {
+                                                                "type": "string",
+                                                                "example": "https://s3.example.com/produtos/1234567890.png"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao atualizar produto",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao atualizar produto"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Mensagem de erro detalhada"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro interno do servidor"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Mensagem de erro detalhada"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/tamanhos-para-cor/{cor_id}/{produto_id}": {
+            "get": {
+                "tags": [
+                    "Tamanho"
+                ],
+                "summary": "Get list of tamanhos",
+                "description": "Returns list of tamanhos",
+                "operationId": "getTamanho",
+                "parameters": [
+                    {
+                        "name": "cor_id",
+                        "in": "path",
+                        "description": "ID of the cor",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "produto_id",
+                        "in": "path",
+                        "description": "ID of the produto",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "tamanho": {
+                                                "type": "string"
+                                            },
+                                            "qtdTamanho": {
+                                                "type": "integer"
+                                            },
+                                            "cor_id": {
+                                                "type": "integer"
+                                            },
+                                            "produto_id": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/usuario": {
+            "get": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "User",
+                "operationId": "5f08371670ce270a0e6577fae9539512",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/usuario/criar": {
+            "post": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Criar Usuário",
+                "operationId": "9c1b0fc79fdc2048ec2e01e0ba4b6592",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret"
+                                    },
+                                    "endereco_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "cpf": {
+                                        "type": "string",
+                                        "example": 11111111111
+                                    },
+                                    "telefone": {
+                                        "type": "string",
+                                        "example": "4792801006"
+                                    },
+                                    "empresa_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "is_master": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "foto": {
+                                        "type": "string",
+                                        "format": "base64",
+                                        "example": ""
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuário criado com sucesso",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/usuario/{id}": {
+            "get": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "User show",
+                "operationId": "3578cec20dc77ec76383f2a46f907876",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of user to show",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/usuario/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "User delete",
+                "description": "Delete user by id",
+                "operationId": "deleteUser",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of user to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Login",
+                "operationId": "0c3ecfce7fe2d8a8098b2f1a48272429",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": ""
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
