@@ -12,16 +12,15 @@ class StatusPedido extends Model
     protected $table = 'status_pedidos';
 
     protected $fillable = [
-        'nome_status'
+        'nome_status',
     ];
 
     protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     protected $casts = [
-        'id' => 'integer'
-    ];  
-    
+        'id' => 'integer',
+    ];
 }

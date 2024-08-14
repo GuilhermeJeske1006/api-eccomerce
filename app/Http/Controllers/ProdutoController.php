@@ -2,17 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProdutoRequest;
 use App\Http\Resources\ProdutoResource;
-use App\Models\Empresa;
-use App\Models\Produto;
-use Illuminate\Auth\Events\Validated;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use App\Models\{Empresa, Produto};
+use Illuminate\Http\{Request, Response};
+use Illuminate\Support\Facades\{DB, Log, Storage};
 
 class ProdutoController extends Controller
 {
@@ -85,40 +79,38 @@ class ProdutoController extends Controller
      *      )
      *  )
      */
-    public function index($empresa_id = null, Request $request)
+    public function index(int $empresa_id = null, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $empresa_id = (int) $empresa_id;
 
             $request->validate([
-                'search' => 'string',
+                'search'       => 'string',
                 'preco_minimo' => 'numeric',
                 'preco_maximo' => 'numeric',
-                'categoria' => 'numeric'
+                'categoria'    => 'numeric',
             ]);
-    
+
             if($empresa_id == null) {
                 return response()->json(["message" => "Empresa não encontrada"], 404);
             }
-    
-            $produto = new Produto();
-            $query = $produto->queryBuscaProduto($empresa_id, $request);
 
-    
+            $produto = new Produto();
+            $query   = $produto->queryBuscaProduto((string) $empresa_id, $request);
+
             $produtos = $query->paginate(15);
-    
+
             foreach ($produtos as $prod) {
                 $prod->foto = Storage::disk('s3')->url($prod->foto);
-                
+
             }
-    
-            return ProdutoResource::collection($produtos);
+
+            return response()->json(ProdutoResource::collection($produtos));
         } catch (\Exception $e) {
             return response()->json(["message" => "Empresa não encontrada"], 404);
         }
 
     }
-
 
     /**
      *  @OA\Post(
@@ -190,108 +182,108 @@ class ProdutoController extends Controller
      *  )
      */
 
-     public function store(StoreProdutoRequest $request)
-     {
-         try {
-             $data = $request->validate();
-     
-             DB::beginTransaction();
-     
-             if (!is_null($request->foto)) {
-                 $data['foto'] = uploadBase64ImageToS3($data['foto'], 'produtos');
-             }
-     
-             $produto = Produto::create($data);
-     
-             if ($request->has('cores')) {
-                 $produto->cores()->createMany($request->input('cores'), ['produto_id' => $produto->id]);     
-             }
-     
-             if ($request->has('tamanhos')) {
-                 foreach ($request->input('tamanhos') as $tamanho) {
-                    $produto->tamanhos()->create($tamanho, ['produto_id' => $produto->id]);
-                 }
-             }
-     
-             if (!is_null($request->fotos)) {
-                 foreach ($request->fotos as $foto) {
-                     $path = uploadBase64ImageToS3($foto['imagem'], 'produtos');
-                     // Certifique-se de que 'imagem' está presente no array $foto
-                     if (isset($foto['imagem'])) {
-                         $produto->fotos()->create(['produto_id' => $produto->id, 'imagem' => $path]);
-                     } else {
-                    
-                         Log::error('Campo "imagem" não encontrado na estrutura de dados das fotos.');
-                     }
-                 }
-             }
-     
-             DB::commit();
-             return response()->json(["message" => "Produto criado com sucesso", "produto" => $produto], Response::HTTP_CREATED);
-         } catch (\Throwable $th) {
-             DB::rollBack();
-             Log::error('Erro ao criar produto: ', ['error' => $th]);
-             return response()->json(["message" => "Erro ao criar produto", 'erro' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-         }
-     }
-     
+    public function store(StoreProdutoRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
 
+            DB::beginTransaction();
 
+            if (!is_null($request->foto)) {
+                $data['foto'] = uploadBase64ImageToS3($request['foto'], 'produtos');
+            }
 
+            $produto = Produto::create($request->all());
 
+            if ($request->has('cores')) {
+                $cores = array_map(function ($cor) use ($produto) {
+                    $cor['produto_id'] = $produto->id;
+
+                    return $cor;
+                }, $request->input('cores'));
+
+                $produto->cores()->createMany($cores);
+            }
+
+            if ($request->has('tamanhos')) {
+                foreach ($request->input('tamanhos') as $tamanho) {
+                    $tamanho['produto_id'] = $produto->id;
+                    $produto->tamanhos()->create($tamanho);
+                }
+            }
+
+            if (!is_null($request->fotos)) {
+                foreach ($request->fotos as $foto) {
+                    $path = uploadBase64ImageToS3($foto['imagem'], 'produtos');
+
+                    // Certifique-se de que 'imagem' está presente no array $foto
+                    if (isset($foto['imagem'])) {
+                        $produto->fotos()->create(['produto_id' => $produto->id, 'imagem' => $path]);
+                    } else {
+
+                        Log::error('Campo "imagem" não encontrado na estrutura de dados das fotos.');
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return response()->json(["message" => "Produto criado com sucesso", "produto" => $produto], Response::HTTP_CREATED);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Erro ao criar produto: ', ['error' => $th]);
+
+            return response()->json(["message" => "Erro ao criar produto", 'erro' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 
     /**
      * Display the specified resource.
      */
 
-     /**
-      * @OA\Get(
-        *      path="/api/produto/{empresa_id}/{id}",
-        *      tags={"Produto"},
-        *      summary="Retorna um produto",
-        *      description="Retorna um produto",
-        *      operationId="show",
-        *      @OA\Parameter(
-        *          name="empresa_id",
-        *          in="path",
-        *          description="Id da empresa",
-        *          required=true,
-        *          @OA\Schema(
-        *              type="string"
-        *          )
-        *      ),
-        *      @OA\Parameter(
-        *          name="id",
-        *          in="path",
-        *          description="Id do produto",
-        *          required=true,
-        *          @OA\Schema(
-        *              type="string"
-        *          )
-        *      ),
+    /**
+     * @OA\Get(
+       *      path="/api/produto/{empresa_id}/{id}",
+       *      tags={"Produto"},
+       *      summary="Retorna um produto",
+       *      description="Retorna um produto",
+       *      operationId="show",
+       *      @OA\Parameter(
+       *          name="empresa_id",
+       *          in="path",
+       *          description="Id da empresa",
+       *          required=true,
+       *          @OA\Schema(
+       *              type="string"
+       *          )
+       *      ),
+       *      @OA\Parameter(
+       *          name="id",
+       *          in="path",
+       *          description="Id do produto",
+       *          required=true,
+       *          @OA\Schema(
+       *              type="string"
+       *          )
+       *      ),
 
-        *      @OA\Response(
-        *          response=200,
-        *          description="OK",
-        *          @OA\MediaType(
-        *              mediaType="application/json"
-        *          )
-        *      ),
-        *      @OA\Response(
-        *          response=404,
-        *          description="Produto não encontrado"
-        *      )
-        *  )
+       *      @OA\Response(
+       *          response=200,
+       *          description="OK",
+       *          @OA\MediaType(
+       *              mediaType="application/json"
+       *          )
+       *      ),
+       *      @OA\Response(
+       *          response=404,
+       *          description="Produto não encontrado"
+       *      )
+       *  )
 
-      */
+     */
 
-    public function show(string $empresa_id, string $id)
+    public function show(string $empresa_id, string $id): ProdutoResource
     {
         $empresa_id = Empresa::findOrFail($empresa_id);
-
-        if (!$empresa_id) {
-            return response()->json(["message" => "Empresa não encontrada"], 404);
-        }
 
         $produto = Produto::find($id);
 
@@ -299,25 +291,13 @@ class ProdutoController extends Controller
             $produto->foto = Storage::disk('s3')->url($produto->foto);
         }
 
-        if (!$produto) {
-            return response()->json(["message" => "produto não encontrada"], 404);
-        }
-
         foreach($produto->fotos as $foto) {
-            if($foto['foto']){
-                $foto['foto'] = Storage::disk('s3')->url($foto['foto'] );
+            if($foto['foto']) {
+                $foto['foto'] = Storage::disk('s3')->url($foto['foto']);
             }
         }
 
         return ProdutoResource::make($produto);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
     }
 
     /**
@@ -436,28 +416,22 @@ class ProdutoController extends Controller
      *     )
      * )
      */
-    public function update(StoreProdutoRequest $request, string $id)
+    public function update(StoreProdutoRequest $request, string $id): \Illuminate\Http\JsonResponse
     {
         try {
             $produto = Produto::findOrFail($id);
 
-            if (!$produto) {
-                return response()->json(["message" => "Produto não encontrado"], 404);
-            }
-
-            $data = $request->validate();
-
             DB::beginTransaction();
 
             if ($request->has('foto')) {
-                $data['foto'] = uploadBase64ImageToS3($data['foto'], 'produtos');
+                $request['foto'] = uploadBase64ImageToS3($request['foto'], 'produtos');
             }
 
-            $produto->update($data);
+            $produto->update($request->all());
 
             if ($request->has('cores')) {
                 $produto->cores()->delete();
-                $produto->cores()->createMany($request->input('cores'));     
+                $produto->cores()->createMany($request->input('cores'));
             }
 
             if ($request->has('tamanhos')) {
@@ -467,6 +441,7 @@ class ProdutoController extends Controller
 
             if($request->has('fotos')) {
                 $produto->fotos()->delete();
+
                 foreach($request->fotos as $foto) {
                     $path = uploadBase64ImageToS3($foto['imagem'], 'produtos');
                     $produto->fotos()->create(['foto' => $path, 'produto_id' => $produto->id]);
@@ -474,27 +449,24 @@ class ProdutoController extends Controller
             }
 
             DB::commit();
+
             return response()->json(["message" => "Produto atualizado com sucesso", "produto" => $produto], Response::HTTP_OK);
-        
+
         } catch (\Throwable $th) {
             DB::rollBack();
             Log::error('Erro ao atualizar produto: ', ['error' => $th]);
+
             return response()->json(["message" => "Erro ao atualizar produto", 'erro' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id): \Illuminate\Http\JsonResponse
     {
         try {
             $produto = Produto::findOrFail($id);
-
-            if (!$produto) {
-                return response()->json(["message" => "Produto não encontrado"], 404);
-            }
 
             $produto->delete();
 

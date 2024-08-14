@@ -17,9 +17,9 @@ class ProdutoFactory extends Factory
     public function definition(): array
     {
         return [
-            'nome' => fake()->name(),
-            'valor' => 10,
-            'empresa_id' => 1,
+            'nome'         => fake()->name(),
+            'valor'        => 10,
+            'empresa_id'   => 1,
             'categoria_id' => 1, // password
         ];
     }

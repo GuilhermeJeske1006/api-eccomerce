@@ -2,20 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUsuarioRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 use App\Http\Resources\UsuarioResource;
-use App\Models\Endereco;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
+use App\Models\{Endereco, User};
+use Illuminate\Http\{Request, Response};
+use Illuminate\Support\Facades\{Auth, Hash, Storage};
 
 class UsuarioController extends Controller
 {
-
     /**
      *  @OA\GET(
      *      path="/api/usuario",
@@ -30,24 +24,22 @@ class UsuarioController extends Controller
      *      ),
      *  )
      */
-    public function index()
+    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $usuarios = User::paginate(15);
 
         $usuarios->map(function ($usuario) {
             $usuario['foto'] = Storage::disk('s3')->url($usuario['foto']);
+
             return $usuario;
         });
-
 
         return UsuarioResource::collection($usuarios);
     }
 
-
     /**
      * Show the form for creating a new resource.
      */
-
 
     /**
      * @OA\Post(
@@ -86,11 +78,10 @@ class UsuarioController extends Controller
      * )
      */
 
-    public function store(StoreUsuarioRequest $request)
+    public function store(StoreUsuarioRequest $request): \Illuminate\Http\JsonResponse
     {
-
         try {
-            $data = $request->validate();
+            $data = $request->validated();
 
             if ($data['foto']) {
                 $data['foto'] = uploadBase64ImageToS3($data['foto'], 'usuarios');
@@ -98,7 +89,7 @@ class UsuarioController extends Controller
                 $data['foto'] = '';
             }
 
-            $request['password'] = Hash::make($request->password);
+            $data['password'] = Hash::make($data['password']);
 
             User::create($data);
 
@@ -114,7 +105,7 @@ class UsuarioController extends Controller
 
     /**
      * @OA\GET(
-     * 
+     *
      * path="/api/usuario/{id}",
      * summary="User show",
      * tags={"Usuário"},
@@ -136,35 +127,16 @@ class UsuarioController extends Controller
      * ),
      * )
      */
-    public function show(string $id)
+    public function show(string $id): UsuarioResource
     {
         $usuario = User::findOrFail($id);
 
-        $usuario['foto'] = Storage::disk('s3')->url($usuario['foto']);
-
-        if (!$usuario) {
-            return response()->json(["message" => "Usuario não encontrado"], 404);
+        if ($usuario['foto'] != null) {
+            $usuario['foto'] = Storage::disk('s3')->url($usuario['foto']);
         }
 
         return UsuarioResource::make($usuario);
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
 
     /**
      *  @OA\DELETE(
@@ -199,7 +171,7 @@ class UsuarioController extends Controller
      *      ),
      *  )
      */
-    public function destroy(string $id)
+    public function destroy(string $id): \Illuminate\Http\JsonResponse
     {
         $usuario = User::find($id);
 
@@ -211,8 +183,6 @@ class UsuarioController extends Controller
 
         return response()->json(["message" => "Usuario excluído com sucesso"], 200);
     }
-
-
 
     /**
      *  @OA\POST(
@@ -236,22 +206,22 @@ class UsuarioController extends Controller
      *      ),
      *  )
      */
-    public function Login(Request $request)
+    public function Login(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            $request->validate([
-                'email' => 'required',
+            $data = $request->validate([
+                'email'    => 'required',
                 'password' => 'required',
             ]);
 
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
 
-                $user = Auth::user();
+                $user  = Auth::user();
                 $token = $user->createToken('JWT');
 
                 return response()->json([
                     'token' => $token,
-                    'user' => $user,
+                    'user'  => $user,
                 ], 200);
             }
 

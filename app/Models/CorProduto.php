@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 
 class CorProduto extends Model
 {
@@ -18,25 +19,36 @@ class CorProduto extends Model
 
     protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     protected $casts = [
-        'produto_id' => 'integer'
+        'produto_id' => 'integer',
     ];
 
-    public function produto()
+    public function produto(): BelongsTo
     {
         return $this->belongsTo(Produto::class);
     }
 
-
-    public function itemPedido()
+    public function itemPedido(): HasMany
     {
         return $this->hasMany(ItemPedido::class);
     }
 
-    public static function atualizarEstoque($items)
+    /**
+     * Atualiza o estoque com base nos itens fornecidos.
+     *
+     * @param array<array{
+     *     produtoId: int,
+     *     tamanho_id: int,
+     *     cor_id: int,
+     *     quantidade: int
+     * }> $items
+     * @return void
+     * @throws \Exception
+     */
+    public static function atualizarEstoque(array $items): void
     {
         try {
             foreach ($items as $item) {
@@ -53,4 +65,5 @@ class CorProduto extends Model
             throw new \Exception("Erro ao atualizar estoque: " . $th->getMessage());
         }
     }
+
 }

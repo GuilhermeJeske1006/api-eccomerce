@@ -36,7 +36,7 @@ class ViaCepController extends Controller
      *     )
      * )
      */
-    public function __invoke(string $cep)
+    public function __invoke(string $cep): \Illuminate\Http\JsonResponse
     {
         try {
             if (!$cep) {

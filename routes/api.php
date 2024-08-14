@@ -1,25 +1,10 @@
 <?php
 
-use App\Http\Controllers\CategoriaController;
-use App\Http\Controllers\ComentarioController;
-use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\Endereco\ViaCepController;
-use App\Http\Controllers\EnderecoController;
-use App\Http\Controllers\Envio\ImprimirEtiquetaController;
-use App\Http\Controllers\Envio\PagarEnvioController;
-use App\Http\Controllers\Envio\RastrearEnvioController;
-use App\Http\Controllers\EnvioController;
+use App\Http\Controllers\Envio\{ImprimirEtiquetaController, PagarEnvioController, RastrearEnvioController};
 use App\Http\Controllers\Frete\CalcularFreteController;
-use App\Http\Controllers\PedidoController;
-use App\Http\Controllers\Pedidos\BoletoController;
-use App\Http\Controllers\Pedidos\CreditoController;
-use App\Http\Controllers\Pedidos\PixController;
-use App\Http\Controllers\Pedidos\WebhookController;
-use App\Http\Controllers\ProdutoController;
-use App\Http\Controllers\TamanhoController;
-use App\Http\Controllers\UsuarioController;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Pedidos\{BoletoController, CreditoController, PixController, WebhookController};
+use App\Http\Controllers\{CategoriaController, ComentarioController, EmpresaController, EnderecoController, EnvioController, PedidoController, ProdutoController, TamanhoController, UsuarioController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,10 +17,6 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
 
 Route::post('/login', [UsuarioController::class, 'Login']);
 Route::post('/usuario/criar', [UsuarioController::class, 'store']);
@@ -58,7 +39,6 @@ Route::get('/categorias', [CategoriaController::class, 'index']);
 
 Route::get('/tamanhos-para-cor/{corSelecionada}/{produtoId}', [TamanhoController::class, 'index']);
 
-
 Route::get('/produto/{empresa_id}', [ProdutoController::class, 'index']);
 Route::get('/produto/{empresa_id}/{id}', [ProdutoController::class, 'show']);
 Route::post('/produto/criar', [ProdutoController::class, 'store']);
@@ -68,7 +48,6 @@ Route::post('/pagamento/credito', CreditoController::class);
 Route::post('/pagamentos/notificacao', WebhookController::class);
 Route::post('/pagamento/pix', PixController::class);
 Route::post('/pagamento/boleto', BoletoController::class);
-
 
 Route::get('/pedidos/{id}', [PedidoController::class, 'index']);
 Route::get('/pedido/{id}', [PedidoController::class, 'show']);
@@ -81,5 +60,3 @@ Route::get('/envio/frete', [EnvioController::class, 'index']);
 Route::post('/envio/pagar', PagarEnvioController::class);
 Route::post('/envio/imprimir-etiqueta', ImprimirEtiquetaController::class);
 Route::post('/envio/rastrear', RastrearEnvioController::class);
-
-

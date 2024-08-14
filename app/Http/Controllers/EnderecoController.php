@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\Endereco;
-use App\Models\Endreco;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreEnderecoRequest;
+use App\Models\{Endereco};
 
 class EnderecoController extends Controller
 {
-
     /**
      *  @OA\POST(
      *      path="/api/endereco/criar",
@@ -20,8 +17,8 @@ class EnderecoController extends Controller
      *          @OA\JsonContent(
      *              required={"cep", "rua", "numero", "bairro", "cidade", "estado", "pais"},
      *              @OA\Property(property="cep", type="string", example="string"),
-     *              @OA\Property(property="rua", type="string", example="string"),
-     *              @OA\Property(property="numero", type="string", example="string"),
+     *              @OA\Property(property="rua", type="string", example="sRua são Pedro"),
+     *              @OA\Property(property="numero", type="integer", example=123),
      *              @OA\Property(property="bairro", type="string", example="string"),
      *              @OA\Property(property="cidade", type="string", example="string"),
      *              @OA\Property(property="estado", type="string", example="string"),
@@ -37,45 +34,18 @@ class EnderecoController extends Controller
      *      ),
      *  )
      */
-    public function store(Request $request)
+    public function store(StoreEnderecoRequest $request): \Illuminate\Http\JsonResponse
     {
-        $validated = $request->validate([
-            'cep' => 'required',
-            'rua' => 'required',
-            'numero' => 'required',
-            'bairro' => 'required',
-            'cidade' => 'required',
-            'estado' => 'required',
-            'pais' => ''
+        try {
+            Endereco::create($request->all());
 
-        ]);
-
-        $endereco = Endereco::create($validated); // Assuming the correct model name is Endereco
-
-        if ($endereco) {
             return response()->json(["message" => "endereco criado com sucesso"], 201);
-        } else {
-            return response()->json(["message" => "Erro ao criar endereco"], 500);
+
+        } catch (\Throwable $th) {
+            return response()->json(["message" => "Erro ao criar endereco", "erro" => $th->getMessage()], 500);
         }
+
     }
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
 
     /**
      *  @OA\PUT(
@@ -113,19 +83,9 @@ class EnderecoController extends Controller
      *      ),
      *  )
      */
-    public function update(Request $request, string $id)
+    public function update(StoreEnderecoRequest $request, string $id): \Illuminate\Http\JsonResponse
     {
         try {
-            $request->validate([
-                'cep' => 'required',
-                'rua' => 'required',
-                'numero' => 'required',
-                'bairro' => 'required',
-                'cidade' => 'required',
-                'estado' => 'required',
-                'pais' => ''
-
-            ]);
 
             $endereco = Endereco::find($id);
 
@@ -141,13 +101,4 @@ class EnderecoController extends Controller
         }
     }
 
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

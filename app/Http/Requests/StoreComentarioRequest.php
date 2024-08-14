@@ -17,15 +17,15 @@ class StoreComentarioRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array<string, string>
      */
     public function rules(): array
     {
         return [
-            'descricao' => 'required|string|max:255',
-            'estrela' => 'required|integer',
+            'descricao'  => 'required|string|max:255',
+            'estrela'    => 'required|integer',
             'produto_id' => 'required|integer',
-            'usuario_id' => 'required|integer'
+            'usuario_id' => 'required|integer',
         ];
     }
 
@@ -34,14 +34,13 @@ class StoreComentarioRequest extends FormRequest
      *
      * @return array<string, string>
      */
-
     public function messages(): array
     {
         return [
-            'descricao.required' => 'A descrição é obrigatória.',
-            'estrela.required' => 'A estrela é obrigatória.',
+            'descricao.required'  => 'A descrição é obrigatória.',
+            'estrela.required'    => 'A estrela é obrigatória.',
             'produto_id.required' => 'O produto_id é obrigatório.',
-            'usuario_id.required' => 'O usuario_id é obrigatório.'
+            'usuario_id.required' => 'O usuario_id é obrigatório.',
         ];
     }
 }

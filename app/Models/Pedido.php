@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Bus\Queueable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 use Illuminate\Notifications\Notifiable;
 
 class Pedido extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
 
     protected $table = 'pedidos';
 
@@ -29,51 +30,69 @@ class Pedido extends Model
         'transportadora_id',
     ];
 
-
-    public function itemPedido()
+    public function itemPedido(): HasMany
     {
-        return $this->hasMany(itemPedido::class);
+        return $this->hasMany(ItemPedido::class);
     }
 
-    public function usuario()
+    public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function empresa()
+    public function empresa(): BelongsTo
     {
         return $this->belongsTo(Empresa::class);
     }
 
-    public function endereco()
+    public function endereco(): BelongsTo
     {
         return $this->belongsTo(Endereco::class);
     }
 
-    public function envio()
+    public function envio(): BelongsTo
     {
         return $this->belongsTo(EnvioPedido::class);
     }
 
-    public static function criarPedido($usuario, $referenceId, $totalVlr, $vlrFrete, $formaPagamento)
-    {
+    /**
+     * Cria um novo pedido.
+     *
+     * @param array{
+     *     id: int,
+     *     endereco_id: int,
+     *     empresa_id: int
+     * } $usuario Associative array com os dados do usuário.
+     * @param string $referenceId
+     * @param float $totalVlr
+     * @param float $vlrFrete
+     * @param string $formaPagamento
+     * @return Pedido
+     */
+    public static function criarPedido(
+        array $usuario, // Expecting an associative array with specific keys
+        string $referenceId,
+        float $totalVlr,
+        float $vlrFrete,
+        string $formaPagamento
+    ): Pedido {
         try {
-            $pedido = new Pedido();
-            $pedido->dataPedido = now();
-            $pedido->vlr_total = $totalVlr;
+            $pedido                 = new Pedido();
+            $pedido->dataPedido     = now();
+            $pedido->vlr_total      = $totalVlr;
             $pedido->formaPagamento = $formaPagamento;
-            $pedido->endereco_id = $usuario['endereco_id'];
-            $pedido->vlr_frete = $vlrFrete;
-            $pedido->empresa_id = $usuario['empresa_id'];
-            $pedido->status = "WAITING_PAYMENT";
-            $pedido->usuario_id = $usuario['id'];
-            $pedido->reference = $referenceId;
-            $pedido->save();            
+            $pedido->endereco_id    = $usuario['endereco_id'];
+            $pedido->vlr_frete      = $vlrFrete;
+            $pedido->empresa_id     = $usuario['empresa_id'];
+            $pedido->status         = "WAITING_PAYMENT";
+            $pedido->usuario_id     = $usuario['id'];
+            $pedido->reference      = $referenceId;
+            $pedido->save();
 
             return $pedido;
         } catch (\Throwable $th) {
             throw new \Exception($th->getMessage());
         }
- 
     }
+
 }

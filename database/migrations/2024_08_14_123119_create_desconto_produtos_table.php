@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('status_pedidos', function (Blueprint $table) {
+        Schema::create('desconto_produtos', function (Blueprint $table) {
             $table->id();
-            $table->string('nome_status');
+            $table->unsignedBigInteger('produto_id');
+            $table->string('porcentagem')->nullable();            
+            $table->decimal('desconto', 10, 2);
+            $table->foreign('produto_id')->references('id')->on('produtos');
             $table->timestamps();
         });
     }
@@ -23,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('status_pedidos');
+        Schema::dropIfExists('desconto_produtos');
     }
 };

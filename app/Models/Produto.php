@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 
 class Produto extends Model
 {
-    
     use HasFactory;
 
     protected $table = 'produtos';
@@ -27,65 +27,74 @@ class Produto extends Model
         'empresa_id',
         'categoria_id',
         'tamanhos',
-        'cores'
-        
+        'cores',
+
     ];
 
     protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     protected $casts = [
         'valor' => 'float',
-        'qtd' => 'integer'
+        'qtd'   => 'integer',
     ];
+
     protected $appends = ['foto_url'];
+
     protected $withCount = ['comentarios'];
+
     protected $perPage = 10;
-    protected $orderBy = 'id'; 
+
+    /**
+     * @var string
+     */
+    protected $orderBy = 'id';
+
+    /**
+     * @var string
+     */
     protected $orderDirection = 'desc';
+
     protected $primaryKey = 'id';
 
-
-
-    public function empresa()
+    public function empresa(): BelongsTo
     {
         return $this->belongsTo(Empresa::class);
     }
 
-    public function comentarios()
+    public function comentarios(): HasMany
     {
         return $this->hasMany(Comentario::class);
     }
 
-    public function fotos()
+    public function fotos(): HasMany
     {
         return $this->hasMany(ImagemProduto::class);
     }
 
-    public function tamanhos()
-    { 
+    public function tamanhos(): HasMany
+    {
         return $this->hasMany(TamanhoProduto::class);
     }
 
-    public function cores()
+    public function cores(): HasMany
     {
         return $this->hasMany(CorProduto::class);
     }
 
-    public function categoria()
+    public function categoria(): BelongsTo
     {
         return $this->belongsTo(Categoria::class);
     }
 
-    public function getFotoUrlAttribute()
+    public function getFotoUrlAttribute(): string
     {
         return env('AWS_URL') . $this->foto;
     }
 
-
-    public function queryBuscaProduto($id, $request)
+    public function queryBuscaProduto(string $id, object $request): object
     {
         $query = self::query();
 

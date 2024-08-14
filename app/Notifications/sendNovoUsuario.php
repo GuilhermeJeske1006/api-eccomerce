@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
@@ -13,13 +12,12 @@ class sendNovoUsuario extends Notification
 {
     use Queueable;
 
-    protected $user;
+    protected User $user; // Specify the type for the property
 
     /**
      * Create a new notification instance.
      *
      * @param User $user
-     * @param Pedido $pedido
      */
     public function __construct(User $user)
     {
@@ -29,32 +27,38 @@ class sendNovoUsuario extends Notification
     /**
      * Get the notification's delivery channels.
      *
+     * @param object $notifiable
      * @return array<int, string>
      */
-    public function via(object $notifiable): array
+    public function via($notifiable): array
     {
         return ['mail'];
     }
 
     /**
      * Get the mail representation of the notification.
+     *
+     * @param object $notifiable
+     * @return MailMessage
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable): MailMessage
     {
-        Log::info('chegou no email', ['pedido' => $this->user]);
-        return (new MailMessage)
+        Log::info('chegou no email', ['user' => $this->user]); // Changed 'pedido' to 'user' to match the variable
+
+        return (new MailMessage())
                     ->view('email.novoUsuario', ['user' => $this->user]);
     }
 
     /**
      * Get the array representation of the notification.
      *
+     * @param object $notifiable
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
+    public function toArray($notifiable): array
     {
         return [
-            //
+            // Add any relevant data for the array representation
         ];
     }
 }

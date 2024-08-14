@@ -2,18 +2,13 @@
 
 namespace App\Observers;
 
-use App\Http\Resources\PedidoResource;
 use App\Jobs\EnviarEmailPedido;
-use App\Models\ItemPedido;
-use App\Models\Pedido;
-use App\Models\User;
+use App\Models\{ItemPedido, Pedido, User};
 use App\Services\EnvioService;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{Log};
 
 class PedidoObserver
 {
-
     /**
      * Handle the Pedido "updated" event.
      */
@@ -26,7 +21,7 @@ class PedidoObserver
             $usuario = User::find($pedido->usuario_id);
 
             $queryPedido = ItemPedido::montarItemPedido($pedido);
-            
+
             Log::info('Pedido atualizado', ['pedido' => $queryPedido]);
 
             EnvioService::inserirFretesCarrinho($queryPedido);
@@ -37,6 +32,5 @@ class PedidoObserver
         }
 
     }
-
 
 }

@@ -4,13 +4,16 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -46,27 +49,23 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-        'is_master' => 'bool'
+        'password'          => 'hashed',
+        'is_master'         => 'bool',
     ];
 
-
-
-    public function endereco()
+    public function endereco(): BelongsTo
     {
-        return $this->belongsTo(endereco::class);
+        return $this->belongsTo(Endereco::class);
     }
 
-    public function empresa()
+    public function empresa(): BelongsTo
     {
         return $this->belongsTo(Empresa::class);
     }
 
-    public function pedidos()
+    public function pedidos(): HasMany
     {
         return $this->hasMany(Pedido::class);
     }
-
-
 
 }

@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreComentarioRequest;
 use App\Models\Comentario;
-use Illuminate\Http\Request;
 
 class ComentarioController extends Controller
 {
@@ -57,18 +55,12 @@ class ComentarioController extends Controller
      *     }
      * )
      */
-    public function store(StoreComentarioRequest $request)
+    public function store(StoreComentarioRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
-            $request->validate();
+            Comentario::create($request->all());
 
-            $comentario = Comentario::create($request->all());
-
-            if ($comentario) {
-                return response()->json(["message" => "Comentario criado com sucesso"], 201);
-            } else {
-                return response()->json(["message" => "Erro ao criar comentario"], 500);
-            }
+            return response()->json(["message" => "Comentario criado com sucesso"], 201);
         } catch (\Throwable $th) {
             return response()->json(["message" => "Erro ao criar comentario", 'erro' => $th->getMessage()], 500);
         }

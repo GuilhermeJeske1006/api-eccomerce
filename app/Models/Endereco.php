@@ -20,16 +20,15 @@ class Endereco extends Model
         'cep',
         'bairro',
         'numero',
-        'complemento'
+        'complemento',
     ];
 
     protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     protected $casts = [
-        'id' => 'integer'
+        'id' => 'integer',
     ];
-    
 }
