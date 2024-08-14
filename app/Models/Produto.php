@@ -89,6 +89,11 @@ class Produto extends Model
         return $this->belongsTo(Categoria::class);
     }
 
+    public function desconto(): HasMany
+    {
+        return $this->hasMany(DescontoProduto::class);
+    }
+
     public function getFotoUrlAttribute(): string
     {
         return env('AWS_URL') . $this->foto;

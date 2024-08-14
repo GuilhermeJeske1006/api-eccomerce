@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Models\ItemPedido;
+use App\Models\{EnvioPedido, ItemPedido};
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -12,6 +12,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $status
  * @property string $reference
  * @property int $usuario_id
+ * @property \App\Models\Usuario $usuario
  * @property \Illuminate\Database\Eloquent\Collection<int, ItemPedido> $itemPedido
  */
 class PedidoResource extends JsonResource
@@ -30,6 +31,8 @@ class PedidoResource extends JsonResource
             "status"       => $this->status,
             "reference"    => $this->reference,
             "usuario_id"   => $this->usuario_id,
+            "usuario"      => $this->usuario,
+            "envio"        => EnvioPedido::where('pedido_id', $this->id)->first(),
             "item_pedidos" => $this->itemPedido->map(function (ItemPedido $item) {
                 return [
                     "id"         => $item->id,

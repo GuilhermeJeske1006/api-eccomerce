@@ -190,7 +190,7 @@ class EmpresaController extends Controller
      *                 @OA\Property(
      *                     property="endereco",
      *                     type="object",
-     *                     required={"id", rua", "cidade", "estado", "cep", "pais", "numero", "bairro"},
+     *                     required={"id", "rua", "cidade", "estado", "cep", "pais", "numero", "bairro"},
      *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="rua", type="string", example="Nova Rua da Empresa"),
      *                     @OA\Property(property="cidade", type="string", example="São Paulo"),
@@ -234,7 +234,6 @@ class EmpresaController extends Controller
      *     )
      * )
      */
-
     public function update(StoreEmpresaRequest $request, string $id): \Illuminate\Http\JsonResponse
     {
         try {

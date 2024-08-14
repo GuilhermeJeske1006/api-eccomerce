@@ -21,6 +21,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $material
  * @property int $empresa_id
  * @property int $categoria_id
+ * @property \Illuminate\Support\Collection<int, DescontoProduto> $desconto
  * @property \Illuminate\Database\Eloquent\Collection<int, Foto> $fotos
  * @property \Illuminate\Database\Eloquent\Collection<int, Comentario> $comentarios
  * @property \Illuminate\Database\Eloquent\Collection<int, Tamanho> $tamanhos
@@ -49,6 +50,7 @@ class ProdutoResource extends JsonResource
             "empresa_id"      => $this->empresa_id,
             "categoria"       => Categoria::find($this->categoria_id),
             "imagem"          => $this->fotos,
+            'desconto'        => $this->desconto,
             "comentarios"     => $this->comentarios->map(function (Comentario $comentario) {
                 return [
                     "id"        => $comentario->id,

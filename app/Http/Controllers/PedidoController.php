@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PedidoResource;
 use App\Models\{ItemPedido, Pedido};
-use Illuminate\Http\Request;
 
 class PedidoController extends Controller
 {
@@ -101,9 +100,61 @@ class PedidoController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Patch(
+     *     path="/api/pedido/{id}",
+     *     summary="Update the status of a pedido",
+     *     description="Updates the status of a pedido to 'PAID' by its ID",
+     *     operationId="updatePedidoStatus",
+     *     tags={"Pedidos"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the pedido to update",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Pedido updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Pedido atualizado com sucesso"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Pedido not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Pedido não encontrado"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error updating the pedido",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Erro ao atualizar pedido"
+     *             )
+     *         )
+     *     ),
+     *     security={
+     *         {"api_key": {}}
+     *     }
+     * )
      */
-    public function update(Request $request, string $id): \Illuminate\Http\JsonResponse
+
+    public function update(string $id): \Illuminate\Http\JsonResponse
     {
         $pedido = Pedido::find($id);
 

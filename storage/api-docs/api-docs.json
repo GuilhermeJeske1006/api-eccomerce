@@ -144,6 +144,303 @@
                 ]
             }
         },
+        "/api/desconto": {
+            "get": {
+                "tags": [
+                    "Desconto"
+                ],
+                "summary": "Calcula o valor do desconto aplicado a um produto",
+                "operationId": "e4d314dd5f813e709da220be6252abf9",
+                "parameters": [
+                    {
+                        "name": "produto_id",
+                        "in": "query",
+                        "description": "ID do produto para o qual o desconto será calculado",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "porcentagem",
+                        "in": "query",
+                        "description": "Porcentagem do desconto a ser aplicado ao valor do produto. Se fornecido, o desconto é calculado como porcentagem.",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    },
+                    {
+                        "name": "desconto",
+                        "in": "query",
+                        "description": "Valor fixo do desconto a ser aplicado ao valor do produto. Se fornecido, o desconto é calculado como valor fixo.",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Desconto calculado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "valor": {
+                                            "description": "Valor do produto após aplicar o desconto",
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 90
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao calcular desconto",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao calcular desconto!"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Desconto"
+                ],
+                "summary": "Cadastra um novo desconto para um produto",
+                "operationId": "dea04885532942f666ee05778e207bd1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "produto_id"
+                                ],
+                                "properties": {
+                                    "produto_id": {
+                                        "description": "ID do produto ao qual o desconto será aplicado",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "porcentagem": {
+                                        "description": "Porcentagem do desconto aplicado ao produto. Se fornecido, o desconto é calculado como porcentagem.",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 10
+                                    },
+                                    "desconto": {
+                                        "description": "Valor fixo do desconto aplicado ao produto. Se fornecido, o desconto é calculado como valor fixo.",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Desconto cadastrado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Desconto cadastrado com sucesso!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao cadastrar desconto",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao cadastrar desconto!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/desconto/{id}": {
+            "put": {
+                "tags": [
+                    "Desconto"
+                ],
+                "summary": "Atualiza um desconto existente",
+                "operationId": "594dfd944f4936b8d8e17604849b515b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do desconto a ser atualizado",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "produto_id"
+                                ],
+                                "properties": {
+                                    "produto_id": {
+                                        "description": "ID do produto ao qual o desconto é aplicado",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "porcentagem": {
+                                        "description": "Porcentagem do desconto aplicado ao produto. Se fornecido, o desconto é calculado como porcentagem.",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 10
+                                    },
+                                    "desconto": {
+                                        "description": "Valor fixo do desconto aplicado ao produto. Se fornecido, o desconto é calculado como valor fixo.",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Desconto atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Desconto atualizado com sucesso!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao atualizar desconto",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao atualizar desconto!"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Desconto"
+                ],
+                "summary": "Remove um desconto existente",
+                "operationId": "8e94ebd72da24a2f41aa47befc699ada",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do desconto a ser removido",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Desconto removido com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Desconto deletado com sucesso!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao remover desconto",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao deletar desconto!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/empresa/criar": {
             "post": {
                 "tags": [
@@ -464,6 +761,7 @@
                                     },
                                     "endereco": {
                                         "required": [
+                                            "id",
                                             "rua",
                                             "cidade",
                                             "estado",
@@ -473,6 +771,10 @@
                                             "bairro"
                                         ],
                                         "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
                                             "rua": {
                                                 "type": "string",
                                                 "example": "Nova Rua da Empresa"
@@ -664,11 +966,11 @@
                                     },
                                     "rua": {
                                         "type": "string",
-                                        "example": "string"
+                                        "example": "sRua são Pedro"
                                     },
                                     "numero": {
-                                        "type": "string",
-                                        "example": "string"
+                                        "type": "integer",
+                                        "example": 123
                                     },
                                     "bairro": {
                                         "type": "string",
@@ -845,7 +1147,7 @@
         "/api/envio/imprimir-etiqueta": {
             "post": {
                 "tags": [
-                    "Envios"
+                    "Envio"
                 ],
                 "summary": "Gera etiquetas para os pedidos",
                 "description": "Este endpoint gera etiquetas para os pedidos fornecidos.",
@@ -938,7 +1240,7 @@
         "/api/envio/pagar": {
             "post": {
                 "tags": [
-                    "Envios"
+                    "Envio"
                 ],
                 "summary": "Processa o pagamento do envio para os pedidos",
                 "description": "Este endpoint processa o pagamento do envio para os pedidos fornecidos. Ele atualiza o status do envio com base nas informações retornadas pelo serviço de envio.",
@@ -1018,6 +1320,89 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Pedido inválido"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/envio/rastrear": {
+            "post": {
+                "tags": [
+                    "Envio"
+                ],
+                "summary": "Rastreia e atualiza o status dos envios com base nos IDs fornecidos",
+                "operationId": "022d159ed11f76f6cd431328dc927f78",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "pedidos": {
+                                        "description": "Array de IDs dos pedidos",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "example": {
+                                "pedidos": [
+                                    "9cc21d73-c2a8-4c17-b931-96d49fc0b81c"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status dos envios rastreados e atualizados com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "codigo_rastreio": {
+                                                        "type": "string",
+                                                        "example": "ABC123"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "Entregue"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao rastrear envios",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao rastrear envio"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Mensagem de erro detalhada"
                                         }
                                     },
                                     "type": "object"
@@ -1150,18 +1535,18 @@
             }
         },
         "/api/pedido/{id}": {
-            "get": {
+            "patch": {
                 "tags": [
                     "Pedidos"
                 ],
-                "summary": "Mostra um pedido específico pelo ID",
-                "description": "Retorna os detalhes de um pedido específico com base no ID fornecido.",
-                "operationId": "a1d998e3688f711975a47999b5a70c8f",
+                "summary": "Update the status of a pedido",
+                "description": "Updates the status of a pedido to 'PAID' by its ID",
+                "operationId": "updatePedidoStatus",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID do pedido",
+                        "description": "ID of the pedido to update",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -1170,15 +1555,23 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalhes do pedido",
+                        "description": "Pedido updated successfully",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pedido atualizado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
                             }
                         }
                     },
                     "404": {
-                        "description": "Pedido não encontrado",
+                        "description": "Pedido not found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1192,8 +1585,29 @@
                                 }
                             }
                         }
+                    },
+                    "500": {
+                        "description": "Error updating the pedido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao atualizar pedido"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
             }
         },
         "/api/pagamento/boleto": {
@@ -1468,7 +1882,7 @@
                                         "example": 1
                                     },
                                     "cpf": {
-                                        "type": "integer",
+                                        "type": "string",
                                         "example": "114.413.859-08"
                                     },
                                     "carrinho": {
@@ -1490,11 +1904,11 @@
                                                 },
                                                 "cor_id": {
                                                     "type": "integer",
-                                                    "example": "1"
+                                                    "example": 1
                                                 },
                                                 "tamanho_id": {
                                                     "type": "integer",
-                                                    "example": "1"
+                                                    "example": 1
                                                 },
                                                 "produtoId": {
                                                     "type": "integer",
@@ -1530,9 +1944,16 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "message": {
+                                        "img_qrcode": {
                                             "type": "string",
-                                            "example": "Pagamento realizado com sucesso"
+                                            "example": "https://example.com/qrcode.png"
+                                        },
+                                        "text_qrCode": {
+                                            "type": "string",
+                                            "example": "QR Code Text"
+                                        },
+                                        "message": {
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -1843,16 +2264,14 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "nome",
-                                    "valor",
-                                    "empresa_id",
-                                    "categoria_id"
-                                ],
                                 "properties": {
                                     "nome": {
                                         "type": "string",
-                                        "example": "Produto A"
+                                        "example": "Produto Exemplo"
+                                    },
+                                    "valor": {
+                                        "type": "number",
+                                        "example": 100
                                     },
                                     "largura": {
                                         "type": "number",
@@ -1866,23 +2285,17 @@
                                         "type": "number",
                                         "example": 11
                                     },
-                                    "valor": {
-                                        "type": "number",
-                                        "format": "float",
-                                        "example": 99.99
-                                    },
                                     "empresa_id": {
                                         "type": "integer",
                                         "example": 1
                                     },
                                     "categoria_id": {
                                         "type": "integer",
-                                        "example": 2
+                                        "example": 1
                                     },
                                     "foto": {
                                         "type": "string",
-                                        "format": "base64",
-                                        "example": "base64_encoded_image_data"
+                                        "example": ""
                                     },
                                     "descricao": {
                                         "type": "string",
@@ -1893,12 +2306,12 @@
                                         "example": "Descrição longa do produto"
                                     },
                                     "peso": {
-                                        "type": "string",
-                                        "example": "500g"
+                                        "type": "number",
+                                        "example": "0.3"
                                     },
                                     "material": {
                                         "type": "string",
-                                        "example": "Aço inoxidável"
+                                        "example": "Plástico"
                                     },
                                     "cores": {
                                         "type": "array",
@@ -2115,6 +2528,86 @@
                         }
                     }
                 }
+            }
+        },
+        "/produtos/{id}": {
+            "delete": {
+                "tags": [
+                    "Produto"
+                ],
+                "summary": "Delete a product",
+                "description": "Deletes a product by its ID",
+                "operationId": "deleteProduct",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the product to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Produto deletado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error deleting the product",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao deletar produto"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Detailed error message here"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Product not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Produto não encontrado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
             }
         },
         "/api/tamanhos-para-cor/{cor_id}/{produto_id}": {
@@ -2403,6 +2896,10 @@
             "description": "Comentario"
         },
         {
+            "name": "Desconto",
+            "description": "Desconto"
+        },
+        {
             "name": "Empresa",
             "description": "Empresa"
         },
@@ -2411,8 +2908,8 @@
             "description": "Endereco"
         },
         {
-            "name": "Envios",
-            "description": "Envios"
+            "name": "Envio",
+            "description": "Envio"
         },
         {
             "name": "Frete",

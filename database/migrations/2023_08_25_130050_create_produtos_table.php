@@ -22,6 +22,7 @@ return new class () extends Migration {
             $table->string('altura')->nullable();
             $table->string('comprimento')->nullable();
             $table->string("material", 50)->nullable();
+            $table->string("cupom", 50)->nullable();
             $table->timestamps();
 
             $table->unsignedBigInteger('empresa_id');

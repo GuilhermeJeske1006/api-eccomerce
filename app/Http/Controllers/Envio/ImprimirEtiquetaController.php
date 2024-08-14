@@ -14,7 +14,7 @@ class ImprimirEtiquetaController extends Controller
      *     summary="Gera etiquetas para os pedidos",
      *     description="Este endpoint gera etiquetas para os pedidos fornecidos.",
      *     operationId="imprimirEtiqueta",
-     *     tags={"Envios"},
+     *     tags={"Envio"},
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -89,25 +89,27 @@ class ImprimirEtiquetaController extends Controller
     public function __invoke(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            // Verifique se o campo 'pedidos' é um array válido
-            if (!is_array($request->pedidos)) {
+            // Recupera o campo 'pedidos' do request, que deve ser um array
+            $pedidos = $request->input('pedidos', []);
+
+            // Valida se 'pedidos' é um array e contém valores
+            if (!is_array($pedidos) || empty($pedidos)) {
                 throw new \Exception('Pedido inválido');
             }
 
-            // Chama o serviço para imprimir a etiqueta
-            $pedido = EnvioService::imprimirEtiqueta($request->pedidos_id);
+            // Chama o serviço para gerar a etiqueta com os pedidos válidos
+            $pedido = EnvioService::imprimirEtiqueta($pedidos);
 
-            // Retorna uma resposta de sucesso com os dados da etiqueta
             return response()->json([
                 'message' => 'Etiqueta gerada com sucesso',
                 'data'    => $pedido,
             ], 200);
         } catch (\Throwable $th) {
-            // Captura qualquer exceção e retorna uma resposta de erro
             return response()->json([
                 'message' => 'Erro ao gerar etiqueta',
                 'error'   => $th->getMessage(),
             ], 400);
         }
     }
+
 }
