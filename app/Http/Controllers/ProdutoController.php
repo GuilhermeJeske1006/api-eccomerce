@@ -101,8 +101,9 @@ class ProdutoController extends Controller
             $produtos = $query->paginate(15);
 
             foreach ($produtos as $prod) {
-                $prod->foto = Storage::disk('s3')->url($prod->foto);
-
+                if($prod->foto) {
+                    $prod->foto = Storage::disk('s3')->url($prod->foto);
+                }
             }
 
             return response()->json(ProdutoResource::collection($produtos));
@@ -188,11 +189,26 @@ class ProdutoController extends Controller
 
             DB::beginTransaction();
 
-            if (!is_null($request->foto)) {
-                $data['foto'] = uploadBase64ImageToS3($request['foto'], 'produtos');
+            if (!is_null($request['foto'])) {
+                $request['foto'] = uploadBase64ImageToS3($request['foto'], 'produtos');
+            } else {
+                $request['foto'] = null;
             }
 
-            $produto = Produto::create($request->all());
+            $produto = Produto::create([
+                'nome'            => $request->input('nome'),
+                'valor'           => $request->input('valor'),
+                'largura'         => $request->input('largura'),
+                'altura'          => $request->input('altura'),
+                'comprimento'     => $request->input('comprimento'),
+                'empresa_id'      => $request->input('empresa_id'),
+                'categoria_id'    => $request->input('categoria_id'),
+                'foto'            => $request['foto'],
+                'descricao'       => $request->input('descricao'),
+                'descricao_longa' => $request->input('descricao_longa'),
+                'peso'            => $request->input('peso'),
+                'material'        => $request->input('material'),
+            ]);
 
             if ($request->has('cores')) {
                 $cores = array_map(function ($cor) use ($produto) {
@@ -205,22 +221,27 @@ class ProdutoController extends Controller
             }
 
             if ($request->has('tamanhos')) {
-                foreach ($request->input('tamanhos') as $tamanho) {
+                $tamanhos = array_map(function ($tamanho) use ($produto) {
                     $tamanho['produto_id'] = $produto->id;
-                    $produto->tamanhos()->create($tamanho);
-                }
+
+                    return $tamanho;
+                }, $request->input('tamanhos'));
+
+                $produto->tamanhos()->createMany($tamanhos);
             }
 
             if (!is_null($request->fotos)) {
                 foreach ($request->fotos as $foto) {
-                    $path = uploadBase64ImageToS3($foto['imagem'], 'produtos');
+                    if(!is_null($foto['imagem'])) {
+                        $path = uploadBase64ImageToS3($foto['imagem'], 'produtos');
 
-                    // Certifique-se de que 'imagem' está presente no array $foto
-                    if (isset($foto['imagem'])) {
-                        $produto->fotos()->create(['produto_id' => $produto->id, 'imagem' => $path]);
+                        if (isset($foto['imagem'])) {
+                            $produto->fotos()->create(['produto_id' => $produto->id, 'imagem' => $path]);
+                        } else {
+                            Log::error('Campo "imagem" não encontrado na estrutura de dados das fotos.');
+                        }
                     } else {
-
-                        Log::error('Campo "imagem" não encontrado na estrutura de dados das fotos.');
+                        $path = null;
                     }
                 }
             }
@@ -317,19 +338,18 @@ class ProdutoController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"nome", "valor", "empresa_id", "categoria_id"},
-     *             @OA\Property(property="nome", type="string", example="Produto A"),
-     *             @OA\Property(property="largura", type="number", example=11),
-     *             @OA\Property(property="altura", type="number", example=17),
-     *             @OA\Property(property="comprimento", type="number", example=11),
-     *             @OA\Property(property="valor", type="number", format="float", example=99.99),
-     *             @OA\Property(property="empresa_id", type="integer", example=1),
-     *             @OA\Property(property="categoria_id", type="integer", example=2),
-     *             @OA\Property(property="foto", type="string", format="base64", example="base64_encoded_image_data"),
-     *             @OA\Property(property="descricao", type="string", example="Descrição curta do produto"),
-     *             @OA\Property(property="descricao_longa", type="string", example="Descrição longa do produto"),
-     *             @OA\Property(property="peso", type="string", example="500g"),
-     *             @OA\Property(property="material", type="string", example="Aço inoxidável"),
+     *                  @OA\Property(property="nome", type="string", example="Produto Exemplo"),
+     *                  @OA\Property(property="valor", type="number", example=100),
+     *                  @OA\Property(property="largura", type="number", example=11),
+     *                  @OA\Property(property="altura", type="number", example=17),
+     *                  @OA\Property(property="comprimento", type="number", example=11),
+     *                  @OA\Property(property="empresa_id", type="integer", example=1),
+     *                  @OA\Property(property="categoria_id", type="integer", example=1),
+     *                  @OA\Property(property="foto", type="string", example=""),
+     *                  @OA\Property(property="descricao", type="string", example="Descrição curta do produto"),
+     *                  @OA\Property(property="descricao_longa", type="string", example="Descrição longa do produto"),
+     *                  @OA\Property(property="peso", type="number", example="0.3"),
+     *                  @OA\Property(property="material", type="string", example="Plástico"),
      *             @OA\Property(
      *                 property="cores",
      *                 type="array",
@@ -461,7 +481,63 @@ class ProdutoController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/produtos/{id}",
+     *     summary="Delete a product",
+     *     description="Deletes a product by its ID",
+     *     operationId="deleteProduct",
+     *     tags={"Produto"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the product to delete",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Produto deletado com sucesso"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error deleting the product",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Erro ao deletar produto"
+     *             ),
+     *             @OA\Property(
+     *                 property="erro",
+     *                 type="string",
+     *                 example="Detailed error message here"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Product not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Produto não encontrado"
+     *             )
+     *         )
+     *     ),
+     *     security={
+     *         {"api_key": {}}
+     *     }
+     * )
      */
     public function destroy(string $id): \Illuminate\Http\JsonResponse
     {

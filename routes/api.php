@@ -4,7 +4,7 @@ use App\Http\Controllers\Endereco\ViaCepController;
 use App\Http\Controllers\Envio\{ImprimirEtiquetaController, PagarEnvioController, RastrearEnvioController};
 use App\Http\Controllers\Frete\CalcularFreteController;
 use App\Http\Controllers\Pedidos\{BoletoController, CreditoController, PixController, WebhookController};
-use App\Http\Controllers\{CategoriaController, ComentarioController, EmpresaController, EnderecoController, EnvioController, PedidoController, ProdutoController, TamanhoController, UsuarioController};
+use App\Http\Controllers\{CategoriaController, ComentarioController, DescontoController, EmpresaController, EnderecoController, EnvioController, PedidoController, ProdutoController, TamanhoController, UsuarioController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -51,7 +51,7 @@ Route::post('/pagamento/boleto', BoletoController::class);
 
 Route::get('/pedidos/{id}', [PedidoController::class, 'index']);
 Route::get('/pedido/{id}', [PedidoController::class, 'show']);
-Route::put('/pedido/{id}', [PedidoController::class, 'update']);
+Route::patch('/pedido/{id}', [PedidoController::class, 'update']);
 
 Route::post('/calculate-frete', CalcularFreteController::class);
 Route::post('/envio/frete', [EnvioController::class, 'store']);
@@ -60,3 +60,8 @@ Route::get('/envio/frete', [EnvioController::class, 'index']);
 Route::post('/envio/pagar', PagarEnvioController::class);
 Route::post('/envio/imprimir-etiqueta', ImprimirEtiquetaController::class);
 Route::post('/envio/rastrear', RastrearEnvioController::class);
+
+Route::post('/desconto', [DescontoController::class, 'store']);
+Route::get('/desconto', [DescontoController::class, 'index']);
+Route::put('/desconto/{id}', [DescontoController::class, 'update']);
+Route::delete('/desconto/{id}', [DescontoController::class, 'destroy']);

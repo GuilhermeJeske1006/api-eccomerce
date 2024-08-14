@@ -94,5 +94,4 @@ class Pedido extends Model
             throw new \Exception($th->getMessage());
         }
     }
-
 }

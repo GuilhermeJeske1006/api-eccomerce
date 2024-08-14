@@ -156,10 +156,9 @@ class EnvioService
     }
 
     /**
-    * @param array<string> $pedidos
-    * @return array<string, mixed>
-    */
-
+     * @param array<string> $pedidos
+     * @return array<string, mixed>
+     */
     public static function imprimirEtiqueta(array $pedidos): array
     {
         try {

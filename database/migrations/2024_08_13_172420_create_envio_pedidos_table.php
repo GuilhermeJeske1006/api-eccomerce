@@ -22,11 +22,6 @@ return new class () extends Migration {
             $table->foreign('pedido_id')->references('id')->on('pedidos');
             $table->timestamps();
         });
-
-        Schema::table('pedidos', function (Blueprint $table) {
-            $table->unsignedBigInteger('envio_id')->nullable();
-            $table->foreign('envio_id')->references('id')->on('envio_pedidos');
-        });
     }
 
     /**
