@@ -17,20 +17,20 @@ class StoreUsuarioRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array<string, string>
      */
     public function rules(): array
     {
         return [
-            'name' => 'required|max:255',
-            'email' => 'required|max:255',
-            'password' => 'required|max:255',
+            'name'        => 'required|max:255',
+            'email'       => 'required|max:255',
+            'password'    => 'required|max:255',
             'endereco_id' => '',
-            'empresa_id' => '',
-            'is_master' => 'required',
-            'foto' => 'string|nullable',
-            'cpf' => 'required|unique:users',
-            'telefone' => 'required',
+            'empresa_id'  => '',
+            'is_master'   => 'required',
+            'foto'        => 'string|nullable',
+            'cpf'         => 'required|unique:users',
+            'telefone'    => 'required',
         ];
     }
 
@@ -42,12 +42,12 @@ class StoreUsuarioRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'O campo nome é obrigatório',
-            'email.required' => 'O campo email é obrigatório',
-            'email.unique' => 'O email informado já está em uso',
+            'name.required'     => 'O campo nome é obrigatório',
+            'email.required'    => 'O campo email é obrigatório',
+            'email.unique'      => 'O email informado já está em uso',
             'password.required' => 'O campo senha é obrigatório',
-            'cpf.required' => 'O campo cpf é obrigatório',
-            'cpf.unique' => 'O cpf informado já está em uso',
+            'cpf.required'      => 'O campo cpf é obrigatório',
+            'cpf.unique'        => 'O cpf informado já está em uso',
             'telefone.required' => 'O campo telefone é obrigatório',
         ];
     }

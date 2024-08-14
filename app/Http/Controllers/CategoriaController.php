@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Categoria;
 use App\Http\Resources\CategoriaResource;
+use App\Models\Categoria;
 
 class CategoriaController extends Controller
 {
-
     /**
      * @OA\Get(
      *     path="/api/categorias",
@@ -30,7 +27,7 @@ class CategoriaController extends Controller
      *     ),
      * )
      */
-    public function index()
+    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         return CategoriaResource::collection(Categoria::all());
     }

@@ -34,7 +34,6 @@ class DatabaseSeeder extends Seeder
             ['nome_status' => 'Debitado'],
             ['nome_status' => 'Retenção temporária'],
         ]);
-        
 
     }
 }

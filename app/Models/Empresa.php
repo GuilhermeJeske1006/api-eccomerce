@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 
 class Empresa extends Model
 {
@@ -25,29 +26,28 @@ class Empresa extends Model
         'descricao',
         'cor',
         'palavras_chaves',
-        'titulo'
+        'titulo',
     ];
 
     protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     protected $casts = [
-        'endereco_id' => 'integer'
+        'endereco_id' => 'integer',
     ];
 
     // protected $appends = ['logo'];
 
-    public function produtos()
+    public function produtos(): HasMany
     {
         return $this->hasMany(Produto::class);
     }
 
-    public function endereco()
+    public function endereco(): BelongsTo
     {
         return $this->belongsTo(Endereco::class);
     }
-
 
 }

@@ -842,6 +842,192 @@
                 }
             }
         },
+        "/api/envio/imprimir-etiqueta": {
+            "post": {
+                "tags": [
+                    "Envios"
+                ],
+                "summary": "Gera etiquetas para os pedidos",
+                "description": "Este endpoint gera etiquetas para os pedidos fornecidos.",
+                "operationId": "imprimirEtiqueta",
+                "requestBody": {
+                    "description": "Lista de pedidos para os quais as etiquetas serão geradas",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "pedidos": {
+                                        "description": "Array de IDs dos pedidos",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "example": {
+                                "pedidos": [
+                                    "9cc21d73-c2a8-4c17-b931-96d49fc0b81c"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Etiqueta gerada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Etiqueta gerada com sucesso"
+                                        },
+                                        "data": {
+                                            "description": "Dados da etiqueta gerada",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao gerar etiqueta",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao gerar etiqueta"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Dados inválidos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pedido inválido"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/envio/pagar": {
+            "post": {
+                "tags": [
+                    "Envios"
+                ],
+                "summary": "Processa o pagamento do envio para os pedidos",
+                "description": "Este endpoint processa o pagamento do envio para os pedidos fornecidos. Ele atualiza o status do envio com base nas informações retornadas pelo serviço de envio.",
+                "operationId": "pagarEnvio",
+                "requestBody": {
+                    "description": "Lista de pedidos para os quais o envio será pago",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "pedidos": {
+                                        "description": "Array de IDs dos pedidos",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "example": {
+                                "pedidos": [
+                                    "9cc21d73-c2a8-4c17-b931-96d49fc0b81c"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envio pago com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Envio pago com sucesso"
+                                        },
+                                        "data": {
+                                            "description": "Dados do envio processado",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao pagar envio",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao pagar envio"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Dados inválidos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pedido inválido"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/calculate-frete": {
             "post": {
                 "tags": [
@@ -1069,6 +1255,14 @@
                                         "type": "number",
                                         "format": "float",
                                         "example": 15
+                                    },
+                                    "agencia": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "servico": {
+                                        "type": "string",
+                                        "example": "1"
                                     }
                                 },
                                 "type": "object"
@@ -1314,6 +1508,14 @@
                                         "type": "number",
                                         "format": "float",
                                         "example": 15
+                                    },
+                                    "agencia": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "servico": {
+                                        "type": "string",
+                                        "example": "1"
                                     }
                                 },
                                 "type": "object"
@@ -2190,5 +2392,51 @@
                 }
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Categoria",
+            "description": "Categoria"
+        },
+        {
+            "name": "Comentario",
+            "description": "Comentario"
+        },
+        {
+            "name": "Empresa",
+            "description": "Empresa"
+        },
+        {
+            "name": "Endereco",
+            "description": "Endereco"
+        },
+        {
+            "name": "Envios",
+            "description": "Envios"
+        },
+        {
+            "name": "Frete",
+            "description": "Frete"
+        },
+        {
+            "name": "Pedidos",
+            "description": "Pedidos"
+        },
+        {
+            "name": "Produto",
+            "description": "Produto"
+        },
+        {
+            "name": "Tamanho",
+            "description": "Tamanho"
+        },
+        {
+            "name": "Usuário",
+            "description": "Usuário"
+        },
+        {
+            "name": "Login",
+            "description": "Login"
+        }
+    ]
 }

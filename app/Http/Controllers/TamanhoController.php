@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Resources\TamanhoResource;
 use App\Models\TamanhoProduto;
-use Illuminate\Http\Request;
 
 class TamanhoController extends Controller
 {
@@ -62,7 +60,7 @@ class TamanhoController extends Controller
      *      }
      * )
      */
-    public function index($cor_id = null, $produto_id = null)
+    public function index(int $cor_id = null, int $produto_id = null): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         if ($cor_id && $produto_id) {
             $tamanhos = TamanhoProduto::where('cor_id', $cor_id)

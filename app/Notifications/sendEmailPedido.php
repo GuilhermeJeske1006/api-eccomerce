@@ -2,8 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\Pedido;
-use App\Models\User;
+use App\Models\{Pedido, User};
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -14,8 +13,9 @@ class sendEmailPedido extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $user;
-    protected $pedido;
+    protected User $user;   // Specify the type for the property
+
+    protected Pedido $pedido; // Specify the type for the property
 
     /**
      * Create a new notification instance.
@@ -25,7 +25,7 @@ class sendEmailPedido extends Notification implements ShouldQueue
      */
     public function __construct(User $user, Pedido $pedido)
     {
-        $this->user = $user;
+        $this->user   = $user;
         $this->pedido = $pedido;
     }
 
@@ -35,7 +35,7 @@ class sendEmailPedido extends Notification implements ShouldQueue
      * @param object $notifiable
      * @return array<int, string>
      */
-    public function via(object $notifiable): array
+    public function via($notifiable): array
     {
         return ['mail'];
     }
@@ -46,10 +46,12 @@ class sendEmailPedido extends Notification implements ShouldQueue
      * @param object $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable): MailMessage
     {
+        // Corrected logging to reference the $pedido property
         Log::info('chegou no email', ['pedido' => $this->pedido->itemPedido]);
-        return (new MailMessage)
+
+        return (new MailMessage())
                     ->view('email.pedidoConfimado', ['user' => $this->user, 'pedido' => $this->pedido]);
     }
 
@@ -59,10 +61,10 @@ class sendEmailPedido extends Notification implements ShouldQueue
      * @param object $notifiable
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
+    public function toArray($notifiable): array
     {
         return [
-            // Aqui você pode definir qualquer dado adicional que você queira representar como array
+            // Define any additional data to be represented as an array
         ];
     }
 }

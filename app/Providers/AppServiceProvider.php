@@ -2,10 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Pedido;
-use App\Models\User;
-use App\Observers\PedidoObserver;
-use App\Observers\UserObserver;
+use App\Models\{Pedido, User};
+use App\Observers\{PedidoObserver, UserObserver};
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

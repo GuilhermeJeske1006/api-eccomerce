@@ -2,17 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreEmpresaRequest;
-use Illuminate\Http\Request;
-use App\Models\Empresa;
 use App\Http\Resources\EmpresaResource;
-use App\Models\Endereco;
-use Illuminate\Auth\Events\Validated;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Aws\S3\S3Client;
+use App\Models\{Empresa, Endereco};
+use Illuminate\Http\{Response};
+use Illuminate\Support\Facades\{DB, Storage};
 
 class EmpresaController extends Controller
 {
@@ -78,7 +72,7 @@ class EmpresaController extends Controller
      *     )
      * )
      */
-    public function store(StoreEmpresaRequest $request)
+    public function store(StoreEmpresaRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             $empresa = $request->validated();
@@ -86,11 +80,6 @@ class EmpresaController extends Controller
             DB::beginTransaction();
 
             $endereco = Endereco::create($empresa['endereco']);
-
-            if (!$endereco) {
-                DB::rollBack();
-                return response()->json(["message" => "Erro ao criar endereço"], 500);
-            }
 
             $empresa['endereco_id'] = $endereco->id;
 
@@ -105,10 +94,10 @@ class EmpresaController extends Controller
             return response()->json(["message" => "Empresa cadastrada com sucesso"], 201);
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return response()->json(["message" => "Erro ao cadastrar empresa", 'erro' => $th->getMessage()], 500);
         }
     }
-
 
     /**
      * @OA\Get(
@@ -146,18 +135,20 @@ class EmpresaController extends Controller
      *     )
      * )
      */
-    public function show(string $id)
+    public function show(string $id): \Illuminate\Http\JsonResponse
     {
-        $empresa = Empresa::findOrFail($id);
+        $empresa = Empresa::find($id);
 
-        $empresa['logo'] = Storage::disk('s3')->url($empresa['logo']);
-        
-        if (!$empresa) {
+        if(!$empresa) {
             return response()->json(["message" => "Empresa não encontrada"], 404);
         }
-        return EmpresaResource::make($empresa);
-    }
 
+        if(isset($empresa['logo'])) {
+            $empresa['logo'] = Storage::disk('s3')->url($empresa['logo']);
+        }
+
+        return response()->json(EmpresaResource::make($empresa));
+    }
 
     /**
      * @OA\Put(
@@ -199,7 +190,8 @@ class EmpresaController extends Controller
      *                 @OA\Property(
      *                     property="endereco",
      *                     type="object",
-     *                     required={"rua", "cidade", "estado", "cep", "pais", "numero", "bairro"},
+     *                     required={"id", rua", "cidade", "estado", "cep", "pais", "numero", "bairro"},
+     *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="rua", type="string", example="Nova Rua da Empresa"),
      *                     @OA\Property(property="cidade", type="string", example="São Paulo"),
      *                     @OA\Property(property="estado", type="string", example="SP"),
@@ -243,7 +235,7 @@ class EmpresaController extends Controller
      * )
      */
 
-    public function update(StoreEmpresaRequest $request, string $id)
+    public function update(StoreEmpresaRequest $request, string $id): \Illuminate\Http\JsonResponse
     {
         try {
             $empresa = Empresa::find($id);
@@ -251,39 +243,34 @@ class EmpresaController extends Controller
             if (!$empresa) {
                 return response()->json(["message" => "Empresa não encontrada"], 404);
             }
-            
-            $empresa = $request->validated();
 
             DB::beginTransaction();
 
-            $endereco = Endereco::find($empresa->endereco_id);
-            
+            $endereco = Endereco::find($request['endereco']['id']);
+
             if (!$endereco) {
                 DB::rollBack();
+
                 return response()->json(["message" => "Endereço não encontrado"], 404);
             }
 
-
-            if ($request->has('logo')) {
-                // deleteImageFromS3($empresa->logo);
-                $empresa->logo = uploadBase64ImageToS3($request->input('logo'), 'empresas');
+            if ($request['logo'] != "") {
+                // deleteImageFromS3($empresa->logo); // Uncomment if you handle image deletion
+                $request['logo'] = uploadBase64ImageToS3($request['logo'], 'empresas');
             }
 
-            $endereco->update($request->input('endereco'));
-
-            $empresa->update($request->except('endereco'));
+            $endereco->update($request['endereco']);
 
             DB::commit();
 
             return response()->json(["message" => "Empresa atualizada com sucesso"], 200);
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return response()->json(["message" => "Erro ao atualizar empresa", 'erro' => $th->getMessage()], 500);
         }
     }
 
-
-    
     /**
      * @OA\Delete(
      *     path="/api/empresa/delete/{id}",
@@ -315,21 +302,21 @@ class EmpresaController extends Controller
      * )
      */
 
-    public function destroy(int $id)
+    public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
         try {
             $empresa = Empresa::find($id);
-    
+
             if (!$empresa) {
                 return response()->json(["message" => "Empresa não encontrada"], 404);
             }
-        
+
             $empresa->delete();
-        
+
             return response()->json(["message" => "Empresa excluída com sucesso"], 200);
         } catch (\Throwable $th) {
             return response()->json(["message" => "Erro ao excluir empresa", 'erro' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        
+
     }
 }

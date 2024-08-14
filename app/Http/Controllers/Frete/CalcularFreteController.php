@@ -3,12 +3,9 @@
 namespace App\Http\Controllers\Frete;
 
 use App\Http\Controllers\Controller;
-use App\Models\Empresa;
-use App\Models\Pedido;
-use App\Models\Produto;
-use App\Models\User;
+use App\Models\{Empresa};
+use App\Services\EnvioService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class CalcularFreteController extends Controller
 {
@@ -51,10 +48,10 @@ class CalcularFreteController extends Controller
      *     )
      * )
      */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            $response = $this->calcularFrete(
+            $response = EnvioService::calcularFrete(
                 $request->cep_destino,
                 $request->produtos,
                 $request->empresa_id
@@ -66,52 +63,4 @@ class CalcularFreteController extends Controller
         }
     }
 
-    private function calcularFrete($cepDestino, $produtos, $empresaId)
-    {
-        try {
-
-            $produtosDetalhes = Produto::whereIn('id', array_column($produtos, 'produtoId'))->get();
-
-            
-            $produtosFormatados = array_map(function ($produto) use ($produtosDetalhes) {
-                $detalhes = $produtosDetalhes->firstWhere('id', $produto['produtoId']);
-                return [
-                    "width" => $detalhes->largura,
-                    "height" => $detalhes->altura,
-                    "length" => $detalhes->comprimento,
-                    "weight" => $detalhes->peso,
-                    "insurance_value" => 10.1,
-                    "quantity" => $produto['quantidade']
-                ];
-            }, $produtos);
-
-
-            $empresa = Empresa::find($empresaId);
-
-            $body = [
-                'from' => [
-                    'postal_code' => $empresa->endereco->cep
-                ],
-                'to' => [
-                    'postal_code' => $cepDestino
-                ],
-                'products' => $produtosFormatados
-            ];
-
-            $endpoint = env('API_MELHOR_ENVIO') . '/' . 'me/shipment/calculate';
-
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . env('TOKEN_MELHOR_ENVIO_SANBOX')
-            ])->post($endpoint, $body);
-
-            if ($response->failed()) {
-                throw new \Exception($response->body());
-            }
-
-            return $response->json();
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
-        }
-    }
 }

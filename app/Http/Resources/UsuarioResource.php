@@ -3,11 +3,18 @@
 namespace App\Http\Resources;
 
 use App\Models\Endereco;
-use App\Models\Endreco;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\DB;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property string $foto
+ * @property bool $is_master
+ * @property string $telefone
+ * @property string $cpf
+ * @property int $empresa_id
+ */
 class UsuarioResource extends JsonResource
 {
     /**
@@ -15,18 +22,17 @@ class UsuarioResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
+    public function toArray($request): array
     {
         return [
-            "id" => $this->id,
-            "name" => $this->name,
-            "email" => $this->email,
-            'foto' => $this->foto,
+            "id"        => $this->id,
+            "name"      => $this->name,
+            "email"     => $this->email,
+            'foto'      => $this->foto,
             "is_master" => $this->is_master,
-            "telefone" => $this->telefone,
-            "cpf" => $this->cpf,
-            'endereco' => Endereco::all()->where('id', $this->empresa_id)->first(),
+            "telefone"  => $this->telefone,
+            "cpf"       => $this->cpf,
+            'endereco'  => Endereco::where('id', $this->empresa_id)->first(),
         ];
-
     }
 }

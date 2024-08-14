@@ -12,12 +12,11 @@ class Categoria extends Model
     protected $table = 'categorias';
 
     protected $fillable = [
-        'categoria'
+        'categoria',
     ];
 
     protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
-    
 }

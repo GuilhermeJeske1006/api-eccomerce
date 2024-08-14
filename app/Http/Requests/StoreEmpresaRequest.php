@@ -17,33 +17,33 @@ class StoreEmpresaRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array<string, string>
      */
     public function rules(): array
     {
         return [
-            'nome' => 'required|max:100',
-            'email' => 'required|max:255|unique:empresas',
-            'cor' => 'required',
-            'logo' => 'nullable',
-            'whatsapp' => 'max:20',
-            'instagram' => 'max:255',
-            'facebook' => 'max:255',
-            'telefone' => 'max:20',
-            'descricao' => 'max:255',
+            'nome'            => 'required|max:100',
+            'email'           => 'required|max:255',
+            'cor'             => 'required',
+            'logo'            => 'nullable',
+            'whatsapp'        => 'max:20',
+            'instagram'       => 'max:255',
+            'facebook'        => 'max:255',
+            'telefone'        => 'max:20',
+            'descricao'       => 'max:255',
             'palavras_chaves' => 'max:255',
-            'titulo' => 'max:255',
-            'cnpj' => 'required|unique:empresas',
+            'titulo'          => 'max:255',
+            'cnpj'            => 'required',
 
-            'endereco' => 'required|array',
-            'endereco.rua' => 'required|string',
-            'endereco.cidade' => 'required|string',
-            'endereco.estado' => 'required|string',
-            'endereco.cep' => 'required|string',
-            'endereco.pais' => 'required|string',
-            'endereco.numero' => 'required|string',
-            'endereco.bairro' => 'required|string',
-            'endereco.complemento' => 'max:255|string'
+            'endereco'             => 'required|array',
+            'endereco.rua'         => 'required|string',
+            'endereco.cidade'      => 'required|string',
+            'endereco.estado'      => 'required|string',
+            'endereco.cep'         => 'required|string',
+            'endereco.pais'        => 'required|string',
+            'endereco.numero'      => 'required|numeric',
+            'endereco.bairro'      => 'required|string',
+            'endereco.complemento' => 'max:255|string',
         ];
     }
 
@@ -55,17 +55,16 @@ class StoreEmpresaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nome.required' => 'O campo nome é obrigatório',
-            'email.required' => 'O campo email é obrigatório',
-            'email.unique' => 'O email informado já está em uso',
-            'cnpj.required' => 'O campo cnpj é obrigatório',
-            'cnpj.unique' => 'O cnpj informado já está em uso',
-            'endereco.rua.required' => 'O campo rua é obrigatório',
+            'nome.required'            => 'O campo nome é obrigatório',
+            'email.required'           => 'O campo email é obrigatório',
+            'cnpj.required'            => 'O campo cnpj é obrigatório',
+            'endereco.rua.required'    => 'O campo rua é obrigatório',
             'endereco.cidade.required' => 'O campo cidade é obrigatório',
             'endereco.estado.required' => 'O campo estado é obrigatório',
-            'endereco.cep.required' => 'O campo cep é obrigatório',
-            'endereco.pais.required' => 'O campo pais é obrigatório',
+            'endereco.cep.required'    => 'O campo cep é obrigatório',
+            'endereco.pais.required'   => 'O campo pais é obrigatório',
             'endereco.numero.required' => 'O campo numero é obrigatório',
+            'endereco.numero.numeric'  => 'O campo numero deve ser do tipo numérico',
             'endereco.bairro.required' => 'O campo bairro é obrigatório',
         ];
     }

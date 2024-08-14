@@ -5,23 +5,28 @@ namespace App\Jobs;
 use App\Models\User;
 use App\Notifications\sendNovoUsuario;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\{ShouldQueue};
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 
 class EnviarNovoUsuario implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
+    /**
+    * The user instance.
+    *
+    * @var User
+    */
     protected $user;
 
     /**
      * Create a new job instance.
      *
      * @param User $user
-     * @param Pedido $pedido
      */
     public function __construct(User $user)
     {

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,10 +14,10 @@ return new class extends Migration
             $table->id();
             $table->string('codigo_rastreio')->unique();
             $table->string('status')->nullable();
-            $table->string('agencia')->nullable();
-            $table->string('servico')->nullable();
+            $table->integer('agencia')->nullable();
+            $table->integer('servico')->nullable();
             $table->string('prazo')->nullable();
-            $table->string('valor')->nullable();
+            $table->decimal('valor', 10)->nullable();
             $table->unsignedBigInteger('pedido_id');
             $table->foreign('pedido_id')->references('id')->on('pedidos');
             $table->timestamps();

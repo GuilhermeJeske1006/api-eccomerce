@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Resources\PedidoResource;
-use App\Models\ItemPedido;
-use App\Models\Pedido;
+use App\Models\{ItemPedido, Pedido};
 use Illuminate\Http\Request;
 
 class PedidoController extends Controller
@@ -41,12 +39,12 @@ class PedidoController extends Controller
      * )
      */
 
-    public function index($id)
+    public function index(string $id): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $pedidos = Pedido::where('usuario_id', $id)->get();
+
         return PedidoResource::collection($pedidos);
     }
-
 
     /**
      * @OA\Get(
@@ -82,12 +80,19 @@ class PedidoController extends Controller
      *     )
      * )
      */
-    public function show(string $id)
+
+    /**
+     * Display the specified resource.
+     *
+     * @param string $id
+     * @return PedidoResource
+     */
+    public function show(string $id): PedidoResource
     {
         $pedido = Pedido::find($id);
 
         if (!$pedido) {
-            return response()->json(['message' => 'Pedido não encontrado'], 404);
+            return new PedidoResource(null);
         }
 
         $pedido = ItemPedido::montarItemPedido($pedido);
@@ -98,9 +103,9 @@ class PedidoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): \Illuminate\Http\JsonResponse
     {
-        $pedido  = Pedido::find($id);
+        $pedido = Pedido::find($id);
 
         $pedido->status = 'PAID';
         $pedido->save();
@@ -108,11 +113,4 @@ class PedidoController extends Controller
         return response()->json(['message' => 'Pedido atualizado com sucesso'], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }
