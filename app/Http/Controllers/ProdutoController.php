@@ -6,7 +6,7 @@ use App\Http\Requests\StoreProdutoRequest;
 use App\Http\Resources\ProdutoResource;
 use App\Models\{Empresa, Produto};
 use Illuminate\Http\{Request, Response};
-use Illuminate\Support\Facades\{DB, Log, Storage};
+use Illuminate\Support\Facades\{DB, Log, Redis, Storage};
 
 class ProdutoController extends Controller
 {
@@ -84,6 +84,7 @@ class ProdutoController extends Controller
         try {
             $empresa_id = (int) $empresa_id;
 
+            // Validação dos parâmetros de pesquisa
             $request->validate([
                 'search'       => 'string',
                 'preco_minimo' => 'numeric',
@@ -91,26 +92,38 @@ class ProdutoController extends Controller
                 'categoria'    => 'numeric',
             ]);
 
-            if($empresa_id == null) {
+            if ($empresa_id == null) {
                 return response()->json(["message" => "Empresa não encontrada"], 404);
             }
 
-            $produto = new Produto();
-            $query   = $produto->queryBuscaProduto((string) $empresa_id, $request);
+            $cacheKey = "empresa_{$empresa_id}_search_" . md5(serialize($request->all()));
 
+            $cachedData = Redis::get($cacheKey);
+
+            if ($cachedData) {
+                $produtos = json_decode($cachedData, true);
+
+                return response()->json($produtos);
+            }
+
+            $produto  = new Produto();
+            $query    = $produto->queryBuscaProduto((string)$empresa_id, $request);
             $produtos = $query->paginate(15);
 
             foreach ($produtos as $prod) {
-                if($prod->foto) {
+                if ($prod->foto) {
                     $prod->foto = Storage::disk('s3')->url($prod->foto);
                 }
             }
 
-            return response()->json(ProdutoResource::collection($produtos));
+            $produtosResource = ProdutoResource::collection($produtos)->response()->getData(true);
+
+            Redis::setex($cacheKey, 3600, json_encode($produtosResource));
+
+            return response()->json($produtosResource);
         } catch (\Exception $e) {
             return response()->json(["message" => "Empresa não encontrada"], 404);
         }
-
     }
 
     /**
@@ -304,19 +317,30 @@ class ProdutoController extends Controller
 
     public function show(string $empresa_id, string $id): ProdutoResource
     {
+        $cacheKey = "empresa_{$empresa_id}_produto_{$id}";
+
+        $cachedData = Redis::get($cacheKey);
+
+        if ($cachedData) {
+            $produto = json_decode($cachedData, true);
+
+            return ProdutoResource::make($produto);
+        }
+
         $empresa_id = Empresa::findOrFail($empresa_id);
+        $produto    = Produto::findOrFail($id);
 
-        $produto = Produto::find($id);
-
-        if($produto->foto) {
+        if ($produto->foto) {
             $produto->foto = Storage::disk('s3')->url($produto->foto);
         }
 
-        foreach($produto->fotos as $foto) {
-            if($foto['foto']) {
+        foreach ($produto->fotos as $foto) {
+            if ($foto['foto']) {
                 $foto['foto'] = Storage::disk('s3')->url($foto['foto']);
             }
         }
+
+        Redis::setex($cacheKey, 3600, json_encode($produto));
 
         return ProdutoResource::make($produto);
     }

@@ -6,7 +6,7 @@ use App\Http\Requests\StoreUsuarioRequest;
 use App\Http\Resources\UsuarioResource;
 use App\Models\{Endereco, User};
 use Illuminate\Http\{Request, Response};
-use Illuminate\Support\Facades\{Auth, Hash, Storage};
+use Illuminate\Support\Facades\{Auth, Hash, Redis, Storage};
 
 class UsuarioController extends Controller
 {
@@ -129,11 +129,22 @@ class UsuarioController extends Controller
      */
     public function show(string $id): UsuarioResource
     {
+        $cacheKey = "usuario_{$id}";
+
+        $cachedData = Redis::get($cacheKey);
+
+        if ($cachedData) {
+            $usuario = json_decode($cachedData, true);
+
+            return UsuarioResource::make($usuario);
+        }
+
         $usuario = User::findOrFail($id);
 
         if ($usuario['foto'] != null) {
             $usuario['foto'] = Storage::disk('s3')->url($usuario['foto']);
         }
+        Redis::setex($cacheKey, 3600, $usuario->toJson());
 
         return UsuarioResource::make($usuario);
     }
@@ -209,7 +220,7 @@ class UsuarioController extends Controller
     public function Login(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            $data = $request->validate([
+            $request->validate([
                 'email'    => 'required',
                 'password' => 'required',
             ]);

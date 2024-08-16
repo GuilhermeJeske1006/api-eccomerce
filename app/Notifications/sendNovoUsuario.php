@@ -46,6 +46,7 @@ class sendNovoUsuario extends Notification
         Log::info('chegou no email', ['user' => $this->user]); // Changed 'pedido' to 'user' to match the variable
 
         return (new MailMessage())
+                    ->subject('Seja bem vindo!')
                     ->view('email.novoUsuario', ['user' => $this->user]);
     }
 

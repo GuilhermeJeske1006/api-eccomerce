@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PedidoResource;
 use App\Models\{ItemPedido, Pedido};
+use Illuminate\Support\Facades\Redis;
 
 class PedidoController extends Controller
 {
@@ -40,7 +41,19 @@ class PedidoController extends Controller
 
     public function index(string $id): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
+        $cacheKey = "pedidos_usuario_{$id}";
+
+        $cachedData = Redis::get($cacheKey);
+
+        if ($cachedData) {
+            $pedidos = json_decode($cachedData, true);
+
+            return PedidoResource::collection(collect($pedidos));
+        }
+
         $pedidos = Pedido::where('usuario_id', $id)->get();
+
+        Redis::setex($cacheKey, 3600, $pedidos->toJson());
 
         return PedidoResource::collection($pedidos);
     }
@@ -88,6 +101,16 @@ class PedidoController extends Controller
      */
     public function show(string $id): PedidoResource
     {
+        $cacheKey = "pedido_{$id}";
+
+        $cachedData = Redis::get($cacheKey);
+
+        if ($cachedData) {
+            $pedido = json_decode($cachedData, true);
+
+            return new PedidoResource($pedido);
+        }
+
         $pedido = Pedido::find($id);
 
         if (!$pedido) {
@@ -95,6 +118,7 @@ class PedidoController extends Controller
         }
 
         $pedido = ItemPedido::montarItemPedido($pedido);
+        Redis::setex($cacheKey, 3600, json_encode($pedido));
 
         return new PedidoResource($pedido);
     }

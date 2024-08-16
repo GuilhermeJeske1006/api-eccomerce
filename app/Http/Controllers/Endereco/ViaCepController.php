@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Endereco;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response as HttpResponse;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\{Http, Redis};
 
 class ViaCepController extends Controller
 {
@@ -45,15 +45,35 @@ class ViaCepController extends Controller
                 ], HttpResponse::HTTP_BAD_REQUEST);
             }
 
-            $response = Http::get("viacep.com.br/ws/{$cep}/json");
+            $cacheKey   = "cep_{$cep}";
+            $cachedData = Redis::get($cacheKey);
 
+            if ($cachedData) {
+                return response()->json([
+                    'data' => json_decode($cachedData, true),
+                ], HttpResponse::HTTP_OK);
+            }
+
+            $response = Http::get("https://viacep.com.br/ws/{$cep}/json");
+
+            if ($response->failed()) {
+                return response()->json([
+                    'message' => 'Erro ao buscar CEP',
+                ], HttpResponse::HTTP_BAD_REQUEST);
+            }
+
+            $cepData = $response->json();
+
+            Redis::setex($cacheKey, 86400, json_encode($cepData));
+
+            // Retornar a resposta
             return response()->json([
-                'data' => $response->json(),
+                'data' => $cepData,
             ], HttpResponse::HTTP_OK);
         } catch (\Throwable $th) {
-
             return response()->json([
                 'message' => 'Erro ao buscar CEP',
+                'error'   => $th->getMessage(),
             ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

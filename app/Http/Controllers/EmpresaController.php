@@ -33,6 +33,9 @@ class EmpresaController extends Controller
      *                 @OA\Property(property="descricao", type="string", example="Descrição da minha empresa"),
      *                 @OA\Property(property="palavras_chaves", type="string", example="empresa, negócios, produtos"),
      *                 @OA\Property(property="titulo", type="string", example="Título da minha empresa"),
+     *                 @OA\Property(property="email_melhor_envio", type="string", example="", description="E-mail da conta no Melhor Envio"),
+     *                 @OA\Property(property="token_melhor_envio", type="string", example="", description="Token da conta no Melhor Envio"),
+     *                 @OA\Property(property="token_pagseguro", type="string", example="", description="Token da conta no PagSeguro"),
      *                 @OA\Property(
      *                     property="endereco",
      *                     type="object",

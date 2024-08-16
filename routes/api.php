@@ -5,7 +5,7 @@ use App\Http\Controllers\Envio\{ImprimirEtiquetaController, PagarEnvioController
 use App\Http\Controllers\Frete\CalcularFreteController;
 use App\Http\Controllers\Pedidos\{BoletoController, CreditoController, PixController, WebhookController};
 use App\Http\Controllers\{CategoriaController, ComentarioController, DescontoController, EmpresaController, EnderecoController, EnvioController, PedidoController, ProdutoController, TamanhoController, UsuarioController};
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\{Route};
 
 /*
 |--------------------------------------------------------------------------
