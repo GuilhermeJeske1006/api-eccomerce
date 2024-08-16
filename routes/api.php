@@ -56,7 +56,6 @@ Route::patch('/pedido/{id}', [PedidoController::class, 'update']);
 Route::post('/calculate-frete', CalcularFreteController::class);
 Route::post('/envio/frete', [EnvioController::class, 'store']);
 Route::get('/envio/frete', [EnvioController::class, 'index']);
-Route::get('/envio/frete', [EnvioController::class, 'index']);
 Route::post('/envio/pagar', PagarEnvioController::class);
 Route::post('/envio/imprimir-etiqueta', ImprimirEtiquetaController::class);
 Route::post('/envio/rastrear', RastrearEnvioController::class);

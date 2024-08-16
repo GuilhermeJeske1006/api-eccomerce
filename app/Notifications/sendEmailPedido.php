@@ -52,7 +52,7 @@ class sendEmailPedido extends Notification implements ShouldQueue
         Log::info('chegou no email', ['pedido' => $this->pedido->itemPedido]);
 
         return (new MailMessage())
-                    ->view('email.pedidoConfimado', ['user' => $this->user, 'pedido' => $this->pedido]);
+            ->view('email.pedidoConfimado', ['user' => $this->user, 'pedido' => $this->pedido]);
     }
 
     /**

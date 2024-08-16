@@ -89,15 +89,11 @@ class ImprimirEtiquetaController extends Controller
     public function __invoke(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            // Recupera o campo 'pedidos' do request, que deve ser um array
             $pedidos = $request->input('pedidos', []);
 
-            // Valida se 'pedidos' é um array e contém valores
             if (!is_array($pedidos) || empty($pedidos)) {
                 throw new \Exception('Pedido inválido');
             }
-
-            // Chama o serviço para gerar a etiqueta com os pedidos válidos
             $pedido = EnvioService::imprimirEtiqueta($pedidos);
 
             return response()->json([
@@ -111,5 +107,4 @@ class ImprimirEtiquetaController extends Controller
             ], 400);
         }
     }
-
 }
