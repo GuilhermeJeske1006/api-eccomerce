@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Pedidos;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\EnviarEmailPedido;
-use App\Models\{CorProduto, EnvioPedido, ItemPedido, Pedido, Produto, User};
+use App\Models\{CorProduto, Empresa, EnvioPedido, ItemPedido, Pedido, Produto, User};
 use App\Services\PedidoService;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\{Request, Response as HttpResponse};
-use Illuminate\Support\Facades\{DB, Log};
+use Illuminate\Support\Facades\{DB, Log, Redis};
 
 class CreditoController extends Controller
 {
@@ -68,7 +68,16 @@ class CreditoController extends Controller
         try {
             DB::beginTransaction();
 
-            $usuario   = User::findOrFail($request->idUsuario)->toArray();
+            $cacheKey   = "usuario_{$request->idUsuario}";
+            $cachedData = Redis::get($cacheKey);
+
+            if ($cachedData) {
+                $usuario = json_decode($cachedData, true);
+            } else {
+                $usuario = User::findOrFail($request->idUsuario)->toArray();
+                Redis::set($cacheKey, json_encode($usuario));
+            }
+
             $endereco  = User::findOrFail($request->idUsuario)->endereco->toArray();
             $cpf       = formatarCpf($request->cartao['cpf']);
             $totalCart = PedidoService::calcularTotalCarrinho($request->carrinho);
@@ -82,7 +91,17 @@ class CreditoController extends Controller
                 (float) $request->vlrFrete
             );
 
-            $response = PedidoService::enviarRequisicaoPagSeguro($body, 'orders');
+            $cacheKey   = "empresa_id{$usuario['empresa_id']}";
+            $cachedData = Redis::get($cacheKey);
+
+            if ($cachedData) {
+                $empresa = json_decode($cachedData, true);
+            } else {
+                $empresa = Empresa::findOrFail($usuario['empresa_id']);
+                Redis::set($cacheKey, json_encode($empresa));
+            }
+
+            $response = PedidoService::enviarRequisicaoPagSeguro($body, 'orders', $empresa);
 
             $pedido = Pedido::criarPedido(
                 $usuario,

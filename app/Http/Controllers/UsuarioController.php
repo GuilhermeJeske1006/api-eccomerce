@@ -5,16 +5,23 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUsuarioRequest;
 use App\Http\Resources\UsuarioResource;
 use App\Models\{Endereco, User};
-use Illuminate\Http\{Request, Response};
-use Illuminate\Support\Facades\{Auth, Hash, Redis, Storage};
+use Illuminate\Http\{JsonResponse, Request, Response};
+use Illuminate\Support\Facades\{Auth, DB, Hash, Redis, Storage};
 
 class UsuarioController extends Controller
 {
     /**
      *  @OA\GET(
-     *      path="/api/usuario",
+     *      path="/api/usuarios/{empresa_id}",
      *      summary="User",
      *      tags={"Usuário"},
+     *       @OA\Parameter(
+     *         name="empresa_id",
+     *         in="path",
+     *         description="ID da empresa cujos pedidos serão buscados",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
      *      @OA\Response(
      *          response=200,
      *          description="OK",
@@ -24,17 +31,22 @@ class UsuarioController extends Controller
      *      ),
      *  )
      */
-    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(int $empresa_id): JsonResponse
     {
-        $usuarios = User::paginate(15);
+        try {
+            $usuarios = User::where('empresa_id', $empresa_id)->orderBy('created_at', 'desc')->paginate();
 
-        $usuarios->map(function ($usuario) {
-            $usuario['foto'] = Storage::disk('s3')->url($usuario['foto']);
+            $usuarios->map(function ($usuario) {
+                $usuario['foto'] = Storage::disk('s3')->url($usuario['foto']);
 
-            return $usuario;
-        });
+                return $usuario;
+            });
 
-        return UsuarioResource::collection($usuarios);
+            return UsuarioResource::collection($usuarios)->response();
+        } catch (\Throwable $th) {
+            return response()->json(['erro' => $th->getMessage(), 'message' => 'Erro ao buscar usuarios'], Response::HTTP_BAD_REQUEST);
+        }
+
     }
 
     /**
@@ -134,19 +146,57 @@ class UsuarioController extends Controller
         $cachedData = Redis::get($cacheKey);
 
         if ($cachedData) {
-            $usuario = json_decode($cachedData, true);
+            $usuarioArray = json_decode($cachedData, true);
+            $usuario      = User::hydrate([$usuarioArray])->first();
 
             return UsuarioResource::make($usuario);
         }
 
         $usuario = User::findOrFail($id);
 
-        if ($usuario['foto'] != null) {
-            $usuario['foto'] = Storage::disk('s3')->url($usuario['foto']);
+        if ($usuario->foto != null) {
+            $usuario->foto = Storage::disk('s3')->url($usuario->foto);
         }
+
         Redis::setex($cacheKey, 3600, $usuario->toJson());
 
         return UsuarioResource::make($usuario);
+    }
+    /**
+     * Show the form for editing the specified resource.
+     */
+
+    public function update(Request $request, string $id)
+    {
+        try {
+
+            DB::beginTransaction();
+
+            $usuario = User::find($id);
+
+            if (!empty($request->foto) && $request->foto != Storage::disk('s3')->url($usuario->foto)) {
+                $request['foto'] = uploadBase64ImageToS3($request['foto'], 'usuarios');
+            } else {
+                $request['foto'] = $usuario->logo;
+            }
+
+            $usuario->update($request->all());
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Usuario atualizado com sucesso',
+                'data'    => new UsuarioResource($usuario),
+            ], 200);
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Erro ao atualizar usuario',
+                'erro'    => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -188,6 +238,10 @@ class UsuarioController extends Controller
 
         if (!$usuario) {
             return response()->json(["message" => "Usuario não encontrado"], 404);
+        }
+
+        if($usuario->foto) {
+            deleteImageFromS3($usuario->foto);
         }
 
         $usuario->delete();
@@ -241,4 +295,5 @@ class UsuarioController extends Controller
             return response()->json($th->getMessage(), 400);
         }
     }
+
 }

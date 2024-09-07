@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Envio;
 
 use App\Http\Controllers\Controller;
-use App\Models\EnvioPedido;
+use App\Models\{Empresa, EnvioPedido};
 use App\Services\EnvioService;
 use Illuminate\Http\Request;
 
@@ -29,7 +29,8 @@ class RastrearEnvioController extends Controller
      *                     "9cc21d73-c2a8-4c17-b931-96d49fc0b81c"
      *                 }
      *             }
-     *         )
+     *         ),
+     *         @OA\Property(property="empresa_id", type="integer", example=1)
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -65,7 +66,9 @@ class RastrearEnvioController extends Controller
                 throw new \Exception('Pedido inválido');
             }
 
-            $pedido = EnvioService::rastrearEnvio($pedidos);
+            $empresa = Empresa::findOrFail($request->empresa_id);
+
+            $pedido = EnvioService::rastrearEnvio($pedidos, $empresa);
 
             $erroPedidos = [];
 

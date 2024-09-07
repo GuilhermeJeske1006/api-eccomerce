@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Envio;
 
 use App\Http\Controllers\Controller;
-use App\Models\EnvioPedido;
+use App\Models\{Empresa, EnvioPedido};
 use App\Services\EnvioService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PagarEnvioController extends Controller
 {
@@ -15,7 +16,7 @@ class PagarEnvioController extends Controller
      *     summary="Processa o pagamento do envio para os pedidos",
      *     description="Este endpoint processa o pagamento do envio para os pedidos fornecidos. Ele atualiza o status do envio com base nas informações retornadas pelo serviço de envio.",
      *     operationId="pagarEnvio",
-     *     tags={"Envios"},
+     *     tags={"Envio"},
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -33,8 +34,10 @@ class PagarEnvioController extends Controller
      *                     "9cc21d73-c2a8-4c17-b931-96d49fc0b81c"
      *                 }
      *             }
-     *         )
+     *         ),
+     *         @OA\Property(property="empresa_id", type="integer", example=1)
      *     ),
+     *
      *
      *     @OA\Response(
      *         response=200,
@@ -94,7 +97,25 @@ class PagarEnvioController extends Controller
                 throw new \Exception('Pedido inválido');
             }
 
-            $pedido = EnvioService::pegarEnvio($request->pedidos);
+            $cacheKey = "empresa_{$request->empresa_id}";
+
+            $cachedData = Redis::get($cacheKey);
+
+            if ($cachedData) {
+                $empresa = json_decode($cachedData, true);
+
+                $empresa = Empresa::hydrate([$empresa])->first();
+            } else {
+                $empresa = Empresa::where('id', $request->empresa_id)->first();
+
+                if (!$empresa) {
+                    return response()->json(['message' => 'Empresa não encontrada'], 404);
+                }
+
+                Redis::setex($cacheKey, 3600, $empresa->toJson());
+            }
+
+            $pedido = EnvioService::pegarEnvio($request->pedidos, $empresa);
 
             $orders = $pedido['purchase']['orders'];
 

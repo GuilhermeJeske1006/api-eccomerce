@@ -28,6 +28,8 @@ class Produto extends Model
         'categoria_id',
         'tamanhos',
         'cores',
+        'irParaSite',
+        'destaque',
 
     ];
 
@@ -37,8 +39,10 @@ class Produto extends Model
     ];
 
     protected $casts = [
-        'valor' => 'float',
-        'qtd'   => 'integer',
+        'valor'      => 'float',
+        'qtd'        => 'integer',
+        'irParaSite' => 'boolean',
+        'destaque'   => 'boolean',
     ];
 
     protected $appends = ['foto_url'];
@@ -94,21 +98,26 @@ class Produto extends Model
         return $this->hasMany(DescontoProduto::class);
     }
 
+    public function itemPedido(): HasMany
+    {
+        return $this->hasMany(ItemPedido::class);
+    }
+
     public function getFotoUrlAttribute(): string
     {
         return env('AWS_URL') . $this->foto;
     }
 
-    public function queryBuscaProduto(string $id, object $request): object
+    public function queryBuscaProduto(string $id, object $request)
     {
         $query = self::query();
 
-        if ($id) {
+        if (isset($id)) {
             $query->where('empresa_id', $id);
         }
 
-        if ($request->has('search')) {
-            $query->where('nome', 'like', '%' . $request->input('search') . '%');
+        if ($request->has('name')) {
+            $query->where('nome', 'like', '%' . $request->input('name') . '%');
         }
 
         if ($request->preco_minimo !== null && $request->preco_maximo !== null) {

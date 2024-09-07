@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Pedidos;
 
 use App\Http\Controllers\Controller;
-use App\Models\{CorProduto, EnvioPedido, Pedido, User};
+use App\Models\{CorProduto, Empresa, EnvioPedido, Pedido, User};
 use App\Services\PedidoService;
 use Carbon\Carbon;
 use Illuminate\Http\{Request, Response};
-use Illuminate\Support\Facades\{DB, Log};
+use Illuminate\Support\Facades\{DB, Log, Redis};
 
 class PixController extends Controller
 {
@@ -62,14 +62,33 @@ class PixController extends Controller
         try {
             DB::beginTransaction();
 
-            $usuario   = User::findOrFail($request->idUsuario)->toArray();
-            $endereco  = User::findOrFail($request->idUsuario)->endereco->toArray();
+            $cacheKey   = "usuario_{$request->idUsuario}";
+            $cachedData = Redis::get($cacheKey);
+
+            if ($cachedData) {
+                $usuario = json_decode($cachedData, true);
+            } else {
+                $usuario = User::findOrFail($request->idUsuario)->toArray();
+                Redis::set($cacheKey, json_encode($usuario));
+            }
+
+            $endereco  = User::find($request->idUsuario)->endereco->toArray();
             $cpf       = formatarCpf($request->cpf);
             $totalCart = PedidoService::calcularTotalCarrinho($request->carrinho);
             $totalVlr  = (float) PedidoService::calcularTotalComFrete($totalCart, $request->vlrFrete);
             $body      = $this->montarBodyRequisicao($request->all(), $usuario, $cpf, $endereco, $totalVlr);
 
-            $response = PedidoService::enviarRequisicaoPagSeguro($body, 'orders');
+            $cacheKey   = "empresa_id{$usuario['empresa_id']}";
+            $cachedData = Redis::get($cacheKey);
+
+            if ($cachedData) {
+                $empresa = json_decode($cachedData, true);
+            } else {
+                $empresa = Empresa::findOrFail($usuario['empresa_id']);
+                Redis::set($cacheKey, json_encode($empresa));
+            }
+
+            $response = PedidoService::enviarRequisicaoPagSeguro($body, 'orders', $empresa);
 
             $pedido = Pedido::criarPedido($usuario, $response['reference_id'], $totalVlr, (float) $request->vlrFrete, 'PIX');
 

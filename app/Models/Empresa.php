@@ -35,9 +35,6 @@ class Empresa extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
-        'email_melhor_envio',
-        'token_melhor_envio',
-        'token_pagseguro',
     ];
 
     protected $casts = [

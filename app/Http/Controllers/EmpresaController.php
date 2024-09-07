@@ -6,7 +6,7 @@ use App\Http\Requests\StoreEmpresaRequest;
 use App\Http\Resources\EmpresaResource;
 use App\Models\{Empresa, Endereco};
 use Illuminate\Http\{Response};
-use Illuminate\Support\Facades\{DB, Storage};
+use Illuminate\Support\Facades\{DB, Redis, Storage};
 
 class EmpresaController extends Controller
 {
@@ -140,15 +140,24 @@ class EmpresaController extends Controller
      */
     public function show(string $id): \Illuminate\Http\JsonResponse
     {
-        $empresa = Empresa::find($id);
+        $cacheKey = "empresa_{$id}";
 
-        if(!$empresa) {
-            return response()->json(["message" => "Empresa não encontrada"], 404);
+        $cachedData = Redis::get($cacheKey);
+
+        if ($cachedData) {
+            $empresaArray = json_decode($cachedData, true);
+            $empresa      = Empresa::hydrate([$empresaArray])->first();
+
+            return response()->json(EmpresaResource::make($empresa));
         }
 
-        if(isset($empresa['logo'])) {
-            $empresa['logo'] = Storage::disk('s3')->url($empresa['logo']);
+        $empresa = Empresa::where('id', $id)->with('endereco')->first();
+
+        if(isset($empresa->logo)) {
+            $empresa->logo = Storage::disk('s3')->url($empresa->logo);
         }
+
+        Redis::setex($cacheKey, 3600, $empresa->toJson());
 
         return response()->json(EmpresaResource::make($empresa));
     }
@@ -240,11 +249,13 @@ class EmpresaController extends Controller
     public function update(StoreEmpresaRequest $request, string $id): \Illuminate\Http\JsonResponse
     {
         try {
-            $empresa = Empresa::find($id);
+            $empresaKey = "empresa_{$id}";
 
-            if (!$empresa) {
-                return response()->json(["message" => "Empresa não encontrada"], 404);
+            if (Redis::exists($empresaKey)) {
+                Redis::del($empresaKey);
             }
+
+            $empresa = Empresa::findOrFail($id);
 
             DB::beginTransaction();
 
@@ -256,10 +267,16 @@ class EmpresaController extends Controller
                 return response()->json(["message" => "Endereço não encontrado"], 404);
             }
 
-            if ($request['logo'] != "") {
-                // deleteImageFromS3($empresa->logo); // Uncomment if you handle image deletion
+            if (!empty($request->logo) && $request->logo != Storage::disk('s3')->url($empresa->logo)) {
+                deleteImageFromS3($empresa->logo);
                 $request['logo'] = uploadBase64ImageToS3($request['logo'], 'empresas');
+            } elseif (empty($request->logo)) {
+                $request['logo'] = '';
+            } else {
+                $request['logo'] = $empresa->logo;
             }
+
+            $empresa->update($request->all());
 
             $endereco->update($request['endereco']);
 
@@ -307,18 +324,21 @@ class EmpresaController extends Controller
     public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
         try {
-            $empresa = Empresa::find($id);
+            $empresa = Empresa::findOrFail($id);
 
-            if (!$empresa) {
-                return response()->json(["message" => "Empresa não encontrada"], 404);
+            if($empresa->logo) {
+                deleteImageFromS3($empresa->logo);
             }
 
             $empresa->delete();
 
             return response()->json(["message" => "Empresa excluída com sucesso"], 200);
         } catch (\Throwable $th) {
-            return response()->json(["message" => "Erro ao excluir empresa", 'erro' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
 
+            return response()->json([
+                "message" => "Erro ao excluir empresa",
+                'erro'    => $th->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

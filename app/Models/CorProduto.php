@@ -31,6 +31,11 @@ class CorProduto extends Model
         return $this->belongsTo(Produto::class);
     }
 
+    public function tamanhoProduto(): HasMany
+    {
+        return $this->hasMany(TamanhoProduto::class);
+    }
+
     public function itemPedido(): HasMany
     {
         return $this->hasMany(ItemPedido::class);

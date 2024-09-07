@@ -3,8 +3,10 @@
 use App\Http\Controllers\Endereco\ViaCepController;
 use App\Http\Controllers\Envio\{ImprimirEtiquetaController, PagarEnvioController, RastrearEnvioController};
 use App\Http\Controllers\Frete\CalcularFreteController;
+use App\Http\Controllers\Imagem\ExcluirImagemController;
+use App\Http\Controllers\Password\AlterarSenhaController;
 use App\Http\Controllers\Pedidos\{BoletoController, CreditoController, PixController, WebhookController};
-use App\Http\Controllers\{CategoriaController, ComentarioController, DescontoController, EmpresaController, EnderecoController, EnvioController, PedidoController, ProdutoController, TamanhoController, UsuarioController};
+use App\Http\Controllers\{BlogController, CategoriaController, ComentarioBlogController, ComentarioController, DescontoController, EmpresaController, EnderecoController, EnvioController, GestaoPedidoController, PedidoController, ProdutoController, SobreController, TamanhoController, UsuarioController};
 use Illuminate\Support\Facades\{Route};
 
 /*
@@ -20,9 +22,12 @@ use Illuminate\Support\Facades\{Route};
 
 Route::post('/login', [UsuarioController::class, 'Login']);
 Route::post('/usuario/criar', [UsuarioController::class, 'store']);
-Route::delete('/usuario/delete/{id}', [UsuarioController::class, 'destroy']);
+Route::delete('/usuario/deletar/{id}', [UsuarioController::class, 'destroy']);
 Route::get('/usuario/{id}', [UsuarioController::class, 'show']);
-Route::get('/usuario', [UsuarioController::class, 'index']);
+Route::get('/usuarios/{empresa_id}', [UsuarioController::class, 'index']);
+Route::put('/usuario/editar/{id}', [UsuarioController::class, 'update']);
+
+Route::put('/usuario/editar/senha/{id}', AlterarSenhaController::class);
 
 Route::get('/empresa/{id}', [EmpresaController::class, 'show']);
 Route::post('/empresa/criar', [EmpresaController::class, 'store']);
@@ -43,6 +48,7 @@ Route::get('/produto/{empresa_id}', [ProdutoController::class, 'index']);
 Route::get('/produto/{empresa_id}/{id}', [ProdutoController::class, 'show']);
 Route::post('/produto/criar', [ProdutoController::class, 'store']);
 Route::put('/produto/{id}', [ProdutoController::class, 'update']);
+Route::delete('/produto/deletar/{id}', [ProdutoController::class, 'destroy']);
 
 Route::post('/pagamento/credito', CreditoController::class);
 Route::post('/pagamentos/notificacao', WebhookController::class);
@@ -64,3 +70,22 @@ Route::post('/desconto', [DescontoController::class, 'store']);
 Route::get('/desconto', [DescontoController::class, 'index']);
 Route::put('/desconto/{id}', [DescontoController::class, 'update']);
 Route::delete('/desconto/{id}', [DescontoController::class, 'destroy']);
+
+Route::get('/blogs/{empresa_id}', [BlogController::class, 'index']);
+Route::get('/blog/{id}', [BlogController::class, 'show']);
+Route::post('/blog/criar', [BlogController::class, 'store']);
+Route::delete('/blog/delete/{id}', [BlogController::class, 'destroy']);
+Route::put('/blog/editar/{id}', [BlogController::class, 'update']);
+
+Route::get('/comentario/blog/{blog_id}', [ComentarioBlogController::class, 'index']);
+Route::get('/comentario/blog/{blog_id}/{id}', [ComentarioBlogController::class, 'show']);
+Route::post('/comentario/blog/criar', [ComentarioBlogController::class, 'store']);
+Route::delete('/comentario/blog/delete/{id}', [ComentarioBlogController::class, 'destroy']);
+Route::put('/comentario/blog/editar/{id}', [ComentarioBlogController::class, 'update']);
+
+Route::get('/sobre/{empresa_id}', [SobreController::class, 'show']);
+Route::put('/sobre/editar/{empresa_id}', [SobreController::class, 'update']);
+
+Route::delete('/excluir-imagem', ExcluirImagemController::class);
+
+Route::get('/pedidos/gestao/{empresa_id}', [GestaoPedidoController::class, 'index']);

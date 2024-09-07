@@ -52,14 +52,12 @@ class CalcularFreteController extends Controller
     public function __invoke(Request $request): JsonResponse
     {
         try {
-            // Validar os parâmetros de entrada
             $request->validate([
                 'cep_destino' => 'required|string',
                 'produtos'    => 'required|array',
                 'empresa_id'  => 'required|integer',
             ]);
 
-            // Criar uma chave de cache com base nos parâmetros de entrada
             $cacheKey = sprintf(
                 "frete_%s_%s_%d",
                 $request->cep_destino,
@@ -67,21 +65,17 @@ class CalcularFreteController extends Controller
                 $request->empresa_id
             );
 
-            // Verificar se o cálculo do frete já está no Redis
             $cachedData = Redis::get($cacheKey);
 
             if ($cachedData) {
                 return response()->json(['data' => json_decode($cachedData, true)], 200);
             }
-
-            // Se não estiver no cache, calcular o frete
             $response = EnvioService::calcularFrete(
                 $request->cep_destino,
                 $request->produtos,
                 $request->empresa_id
             );
 
-            // Armazenar o resultado no Redis com tempo de expiração (ex.: 1 hora)
             Redis::setex($cacheKey, 3600, json_encode($response));
 
             return response()->json(['data' => $response], 200);

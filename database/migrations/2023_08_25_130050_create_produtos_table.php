@@ -22,6 +22,10 @@ return new class () extends Migration {
             $table->string('altura')->nullable();
             $table->string('comprimento')->nullable();
             $table->string("material", 50)->nullable();
+            $table->boolean("ativo")->default(true);
+            $table->boolean("destaque")->default(false);
+            $table->boolean("promocao")->default(false);
+            $table->boolean("irParaSite")->default(true);
             $table->string("cupom", 50)->nullable();
             $table->timestamps();
 

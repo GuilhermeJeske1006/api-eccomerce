@@ -86,8 +86,8 @@ class EnvioService
             $response = Http::withHeaders([
                 'Content-Type'  => 'application/json',
                 'accept'        => 'application/json',
-                'User-Agent'    => 'guilhermeieski@gmail.com',
-                'Authorization' => 'Bearer ' . env('TOKEN_MELHOR_ENVIO_SANBOX'),
+                'User-Agent'    => $empresa->email_melhor_envio,
+                'Authorization' => 'Bearer ' . $empresa->token_melhor_envio,
             ])->post($endpoint, $body);
 
             if ($response->failed()) {
@@ -115,7 +115,7 @@ class EnvioService
     /**
     * @return array<string, mixed>
     */
-    public static function gerarEtiqueta(): array
+    public static function gerarEtiqueta(Empresa $empresa): array
     {
         $body = [
             'orders' => ["9cbfee3c-66da-4eb3-93d4-7ee46b94bb7b"],
@@ -126,8 +126,8 @@ class EnvioService
         $response = Http::withHeaders([
             'Content-Type'  => 'application/json',
             'accept'        => 'application/json',
-            'User-Agent'    => 'guilhermeieski@gmail.com',
-            'Authorization' => 'Bearer ' . env('TOKEN_MELHOR_ENVIO_SANBOX'),
+            'User-Agent'    => $empresa->email_melhor_envio,
+            'Authorization' => 'Bearer ' . $empresa->token_melhor_envio,
         ])->post($endpoint, $body);
 
         return $response->json();
@@ -137,7 +137,7 @@ class EnvioService
      * @param array<string> $pedidos
      * @return array<string, mixed>
      */
-    public static function pegarEnvio(array $pedidos): array
+    public static function pegarEnvio(array $pedidos, Empresa $empresa): array
     {
         $body = [
             'orders' => $pedidos,
@@ -148,8 +148,8 @@ class EnvioService
         $response = Http::withHeaders([
             'Content-Type'  => 'application/json',
             'accept'        => 'application/json',
-            'User-Agent'    => 'guilhermeieski@gmail.com',
-            'Authorization' => 'Bearer ' . env('TOKEN_MELHOR_ENVIO_SANBOX'),
+            'User-Agent'    => $empresa->email_melhor_envio,
+            'Authorization' => 'Bearer ' . $empresa->token_melhor_envio,
         ])->post($endpoint, $body);
 
         return $response->json();
@@ -159,7 +159,7 @@ class EnvioService
      * @param array<string> $pedidos
      * @return array<string, mixed>
      */
-    public static function imprimirEtiqueta(array $pedidos): array
+    public static function imprimirEtiqueta(array $pedidos, Empresa $empresa): array
     {
         try {
             $body = [
@@ -172,8 +172,8 @@ class EnvioService
             $response = Http::withHeaders([
                 'Content-Type'  => 'application/json',
                 'accept'        => 'application/json',
-                'User-Agent'    => 'guilhermeieski@gmail.com',
-                'Authorization' => 'Bearer ' . env('TOKEN_MELHOR_ENVIO_SANBOX'),
+                'User-Agent'    => $empresa->email_melhor_envio,
+                'Authorization' => 'Bearer ' . $empresa->token_melhor_envio,
             ])->post($endpoint, $body);
 
             return $response->json();
@@ -186,7 +186,7 @@ class EnvioService
     * @param array<string> $pedidos
     * @return array<string, mixed>
     */
-    public static function rastrearEnvio(array $pedidos): array
+    public static function rastrearEnvio(array $pedidos, Empresa $empresa): array
     {
         try {
             $body = [
@@ -198,8 +198,8 @@ class EnvioService
             $response = Http::withHeaders([
                 'Content-Type'  => 'application/json',
                 'accept'        => 'application/json',
-                'User-Agent'    => 'guilhermeieski@gmail.com',
-                'Authorization' => 'Bearer ' . env('TOKEN_MELHOR_ENVIO_SANBOX'),
+                'User-Agent'    => $empresa->email_melhor_envio,
+                'Authorization' => 'Bearer ' . $empresa->token_melhor_envio,
             ])->post($endpoint, $body);
 
             return $response->json();
@@ -250,7 +250,7 @@ class EnvioService
 
             $response = Http::withHeaders([
                 'Content-Type'  => 'application/json',
-                'Authorization' => 'Bearer ' . env('TOKEN_MELHOR_ENVIO_SANBOX'),
+                'Authorization' => 'Bearer ' . $empresa->token_melhor_envio,
             ])->post($endpoint, $body);
 
             if ($response->failed()) {

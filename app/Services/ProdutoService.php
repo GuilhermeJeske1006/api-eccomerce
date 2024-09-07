@@ -15,30 +15,31 @@ class ProdutoService
      *
      * @return array<string, float>  Array contendo os valores de porcentagem, desconto e valor final.
      */
-    public static function calculaDesconto(Produto $produto, Request $request): array
+    public static function calculaDesconto(Produto $produto, Request $request): float
     {
-        $valor = $produto->valor;
+        $valorOriginal = $produto->valor;
 
-        $valorPorcentagem = 0;
-        $valorDesconto    = 0;
+        // Inicializa os valores de desconto e porcentagem como zero
+        $desconto    = 0;
+        $porcentagem = 0;
 
-        // Verifica se há uma porcentagem no request e calcula o valor de desconto porcentual
-        if ($request->has('porcentagem')) {
-            $valorPorcentagem -= $valor * ($request->porcentagem / 100);
-        }
-
-        // Verifica se há um valor de desconto no request
+        // Verifica se há um valor de desconto no request e ajusta conforme necessário
         if ($request->has('desconto')) {
-            $valorDesconto -= $request->desconto;
+            $desconto = max(0, min($request->desconto, $valorOriginal));
         }
 
-        // Calcula o valor final
-        $valores = [
-            'valorPorcentagem' => $valorPorcentagem,
-            'valorDesconto'    => $valorDesconto,
-            'valorFinal'       => $valor + $valorPorcentagem + $valorDesconto,
-        ];
+        // Verifica se há uma porcentagem de desconto no request e ajusta conforme necessário
+        if ($request->has('porcentagem')) {
+            $porcentagem = max(0, min($request->porcentagem, 100));
+        }
 
-        return $valores;
+        // Calcula o valor após aplicar o desconto em reais
+        $valorComDesconto = max(0, $valorOriginal - $desconto);
+
+        // Calcula o valor final após aplicar a porcentagem de desconto sobre o valor com desconto
+        $valorFinal = $valorComDesconto - ($valorComDesconto * $porcentagem / 100);
+
+        return max(0, $valorFinal); // Garante que o valor final não seja negativo
     }
+
 }

@@ -41,19 +41,7 @@ class PedidoController extends Controller
 
     public function index(string $id): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $cacheKey = "pedidos_usuario_{$id}";
-
-        $cachedData = Redis::get($cacheKey);
-
-        if ($cachedData) {
-            $pedidos = json_decode($cachedData, true);
-
-            return PedidoResource::collection(collect($pedidos));
-        }
-
         $pedidos = Pedido::where('usuario_id', $id)->get();
-
-        Redis::setex($cacheKey, 3600, $pedidos->toJson());
 
         return PedidoResource::collection($pedidos);
     }
@@ -101,16 +89,19 @@ class PedidoController extends Controller
      */
     public function show(string $id): PedidoResource
     {
-        $cacheKey = "pedido_{$id}";
+        $cacheKey     = "pedido_{$id}";
+        $cachedPedido = Redis::get($cacheKey);
 
-        $cachedData = Redis::get($cacheKey);
+        if ($cachedPedido) {
 
-        if ($cachedData) {
-            $pedido = json_decode($cachedData, true);
+            $pedido = json_decode($cachedPedido, true);
+
+            if (is_array($pedido)) {
+                $pedido = new Pedido($pedido);
+            }
 
             return new PedidoResource($pedido);
         }
-
         $pedido = Pedido::find($id);
 
         if (!$pedido) {
@@ -118,7 +109,8 @@ class PedidoController extends Controller
         }
 
         $pedido = ItemPedido::montarItemPedido($pedido);
-        Redis::setex($cacheKey, 3600, json_encode($pedido));
+
+        Redis::setex($cacheKey, 3600, $pedido->toJson());
 
         return new PedidoResource($pedido);
     }
@@ -180,12 +172,13 @@ class PedidoController extends Controller
 
     public function update(string $id): \Illuminate\Http\JsonResponse
     {
-        $pedido = Pedido::find($id);
+        $pedido = Pedido::findOrFail($id);
 
         $pedido->status = 'PAID';
         $pedido->save();
 
         return response()->json(['message' => 'Pedido atualizado com sucesso'], 200);
+
     }
 
 }

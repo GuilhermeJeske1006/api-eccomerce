@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Envio;
 
 use App\Http\Controllers\Controller;
+use App\Models\Empresa;
 use App\Services\EnvioService;
 use Illuminate\Http\Request;
 
@@ -32,7 +33,8 @@ class ImprimirEtiquetaController extends Controller
      *                     "9cc21d73-c2a8-4c17-b931-96d49fc0b81c"
      *                 }
      *             }
-     *         )
+     *         ),
+     *        @OA\Property(property="empresa_id", type="integer", example=1)
      *     ),
      *
      *     @OA\Response(
@@ -94,7 +96,9 @@ class ImprimirEtiquetaController extends Controller
             if (!is_array($pedidos) || empty($pedidos)) {
                 throw new \Exception('Pedido inválido');
             }
-            $pedido = EnvioService::imprimirEtiqueta($pedidos);
+            $empresa = Empresa::findOrFail($request->empresa_id);
+
+            $pedido = EnvioService::imprimirEtiqueta($pedidos, $empresa);
 
             return response()->json([
                 'message' => 'Etiqueta gerada com sucesso',

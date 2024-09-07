@@ -8,6 +8,382 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/blogs/{empresa_id}": {
+            "get": {
+                "tags": [
+                    "Blogs"
+                ],
+                "summary": "Listar blogs por empresa",
+                "description": "Retorna uma lista paginada de blogs pertencentes a uma empresa específica, com a opção de aplicar filtros usando query parameters.",
+                "operationId": "6efe1affe67f396771bb45bd88067310",
+                "parameters": [
+                    {
+                        "name": "empresa_id",
+                        "in": "path",
+                        "description": "ID da empresa cujos blogs serão listados",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Termo de busca para filtrar blogs",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista paginada de blogs",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao buscar blogs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao buscar blogs"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/blog/criar": {
+            "post": {
+                "tags": [
+                    "Blogs"
+                ],
+                "summary": "Criar um novo blog",
+                "description": "Cria um novo blog com os dados fornecidos e faz o upload da imagem associada, se presente.",
+                "operationId": "964a0787bb909fa02b74d2f47e3a2aae",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "titulo",
+                                    "texto"
+                                ],
+                                "properties": {
+                                    "titulo": {
+                                        "type": "string",
+                                        "example": "Título do Blog"
+                                    },
+                                    "texto": {
+                                        "type": "string",
+                                        "example": "Conteúdo do blog."
+                                    },
+                                    "foto": {
+                                        "type": "string",
+                                        "format": "byte",
+                                        "example": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Blog criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Blog criado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao criar blog",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao criar blog"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/blog/{id}": {
+            "get": {
+                "tags": [
+                    "Blogs"
+                ],
+                "summary": "Exibir detalhes de um blog",
+                "description": "Retorna os detalhes de um blog específico, incluindo a URL da foto armazenada no S3.",
+                "operationId": "6ac9d2eb1f1ccbc64de4ae3a2bb02941",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do blog a ser exibido",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes do blog",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Blog não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Blog não encontrado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao buscar blog",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao buscar blog"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/blog/editar/{id}": {
+            "put": {
+                "tags": [
+                    "Blogs"
+                ],
+                "summary": "Atualizar um blog",
+                "description": "Atualiza os dados de um blog existente, incluindo a imagem associada.",
+                "operationId": "bdc7e678d9f34194f9291bc387464b82",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do blog a ser atualizado",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "titulo",
+                                    "texto"
+                                ],
+                                "properties": {
+                                    "titulo": {
+                                        "type": "string",
+                                        "example": "Novo Título do Blog"
+                                    },
+                                    "texto": {
+                                        "type": "string",
+                                        "example": "Conteúdo atualizado do blog."
+                                    },
+                                    "foto": {
+                                        "type": "string",
+                                        "format": "byte",
+                                        "example": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Blog atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Blog atualizado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Blog não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Blog não encontrado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao atualizar blog",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao atualizar blog"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/blog/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Blogs"
+                ],
+                "summary": "Deletar um blog",
+                "description": "Remove um blog específico, incluindo a exclusão da imagem associada no S3, caso exista.",
+                "operationId": "1b2e400ab40bc55cfaf59cc369b5227b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do blog a ser deletado",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Blog deletado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Blog deletado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Blog não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Blog não encontrado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao deletar blog",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao deletar blog"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/categorias": {
             "get": {
                 "tags": [
@@ -508,6 +884,21 @@
                                     "titulo": {
                                         "type": "string",
                                         "example": "Título da minha empresa"
+                                    },
+                                    "email_melhor_envio": {
+                                        "description": "E-mail da conta no Melhor Envio",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "token_melhor_envio": {
+                                        "description": "Token da conta no Melhor Envio",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "token_pagseguro": {
+                                        "description": "Token da conta no PagSeguro",
+                                        "type": "string",
+                                        "example": ""
                                     },
                                     "endereco": {
                                         "required": [
@@ -1489,6 +1880,161 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Erro ao calcular frete"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pedidos/gestao/{empresa_id}": {
+            "get": {
+                "tags": [
+                    "Pedidos"
+                ],
+                "summary": "Obtém uma lista paginada de pedidos de uma empresa",
+                "operationId": "60b702521dc0c4f450e4ecf00edbe7e6",
+                "parameters": [
+                    {
+                        "name": "empresa_id",
+                        "in": "path",
+                        "description": "ID da empresa cujos pedidos serão buscados",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de pedidos retornada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao buscar pedidos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao buscar pedidos"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/usuario/editar/senha/{id}": {
+            "put": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Alterar a senha do usuário",
+                "description": "Permite que um usuário altere sua senha, verificando a senha atual e confirmando a nova senha.",
+                "operationId": "6310aa30817cbfb4cb78bb74128656e9",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "ID do usuário",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "currentPassword",
+                                    "newPassword",
+                                    "confirmPassword"
+                                ],
+                                "properties": {
+                                    "currentPassword": {
+                                        "type": "string",
+                                        "example": "senhaAntiga123"
+                                    },
+                                    "newPassword": {
+                                        "type": "string",
+                                        "example": "novaSenha456"
+                                    },
+                                    "confirmPassword": {
+                                        "type": "string",
+                                        "example": "novaSenha456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Senha alterada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Senha alterada com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Senha antiga incorreta ou as senhas não conferem"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao alterar senha",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao alterar senha"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
                                         }
                                     },
                                     "type": "object"
@@ -2680,13 +3226,24 @@
                 ]
             }
         },
-        "/api/usuario": {
+        "/api/usuarios/{empresa_id}": {
             "get": {
                 "tags": [
                     "Usuário"
                 ],
                 "summary": "User",
-                "operationId": "5f08371670ce270a0e6577fae9539512",
+                "operationId": "f8f5cd7556752de0b1503a07c1a3d1ea",
+                "parameters": [
+                    {
+                        "name": "empresa_id",
+                        "in": "path",
+                        "description": "ID da empresa cujos pedidos serão buscados",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2888,6 +3445,10 @@
     },
     "tags": [
         {
+            "name": "Blogs",
+            "description": "Blogs"
+        },
+        {
             "name": "Categoria",
             "description": "Categoria"
         },
@@ -2920,16 +3481,16 @@
             "description": "Pedidos"
         },
         {
+            "name": "Usuário",
+            "description": "Usuário"
+        },
+        {
             "name": "Produto",
             "description": "Produto"
         },
         {
             "name": "Tamanho",
             "description": "Tamanho"
-        },
-        {
-            "name": "Usuário",
-            "description": "Usuário"
         },
         {
             "name": "Login",

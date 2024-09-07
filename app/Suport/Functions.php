@@ -1,7 +1,7 @@
 <?php
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\{Storage};
 
 function uploadBase64ImageToS3(string $base64Image, string $directory): string
 {
@@ -19,6 +19,20 @@ function uploadBase64ImageToS3(string $base64Image, string $directory): string
     Storage::disk('s3')->put($filePath, $image, 'public');
 
     return $filePath;
+}
+
+function uploadUpdateBase64ImageToS3($param, $model, $directory): string
+{
+    if (!empty($param) && $param != Storage::disk('s3')->url($model)) {
+        deleteImageFromS3($model);
+        $retornoFile = uploadBase64ImageToS3($param, $directory);
+    } elseif (empty($param)) {
+        $retornoFile = '';
+    } else {
+        $retornoFile = $model;
+    }
+
+    return $retornoFile;
 }
 
 function deleteImageFromS3(string $filePath): void
