@@ -27,6 +27,9 @@ class Empresa extends Model
         'cor',
         'palavras_chaves',
         'titulo',
+        'email_melhor_envio',
+        'token_melhor_envio',
+        'token_pagseguro',
     ];
 
     protected $hidden = [
@@ -37,8 +40,6 @@ class Empresa extends Model
     protected $casts = [
         'endereco_id' => 'integer',
     ];
-
-    // protected $appends = ['logo'];
 
     public function produtos(): HasMany
     {

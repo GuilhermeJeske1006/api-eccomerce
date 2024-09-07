@@ -23,7 +23,7 @@ class StoreProdutoRequest extends FormRequest
     {
         return [
             'nome'            => 'required|max:255',
-            'valor'           => 'required|numeric',
+            'valor'           => 'required',
             'empresa_id'      => 'required|numeric',
             'categoria_id'    => 'required|numeric',
             'foto'            => 'nullable|string',
@@ -35,6 +35,8 @@ class StoreProdutoRequest extends FormRequest
             'peso'            => 'numeric|max:255',
             'material'        => 'max:50',
             'fotos.*'         => 'nullable',
+            'irParaSite'      => 'boolean',
+            'destaque'        => 'boolean',
         ];
     }
 
@@ -56,7 +58,6 @@ class StoreProdutoRequest extends FormRequest
             'comprimento.required'  => 'O campo comprimento é obrigatório',
             'peso.required'         => 'O campo peso é obrigatório',
             'material.required'     => 'O campo material é obrigatório',
-            'fotos.required'        => 'O campo fotos é obrigatório',
 
         ];
     }

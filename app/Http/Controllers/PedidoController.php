@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PedidoResource;
 use App\Models\{ItemPedido, Pedido};
+use Illuminate\Support\Facades\Redis;
 
 class PedidoController extends Controller
 {
@@ -88,6 +89,19 @@ class PedidoController extends Controller
      */
     public function show(string $id): PedidoResource
     {
+        $cacheKey     = "pedido_{$id}";
+        $cachedPedido = Redis::get($cacheKey);
+
+        if ($cachedPedido) {
+
+            $pedido = json_decode($cachedPedido, true);
+
+            if (is_array($pedido)) {
+                $pedido = new Pedido($pedido);
+            }
+
+            return new PedidoResource($pedido);
+        }
         $pedido = Pedido::find($id);
 
         if (!$pedido) {
@@ -95,6 +109,8 @@ class PedidoController extends Controller
         }
 
         $pedido = ItemPedido::montarItemPedido($pedido);
+
+        Redis::setex($cacheKey, 3600, $pedido->toJson());
 
         return new PedidoResource($pedido);
     }
@@ -156,12 +172,13 @@ class PedidoController extends Controller
 
     public function update(string $id): \Illuminate\Http\JsonResponse
     {
-        $pedido = Pedido::find($id);
+        $pedido = Pedido::findOrFail($id);
 
         $pedido->status = 'PAID';
         $pedido->save();
 
         return response()->json(['message' => 'Pedido atualizado com sucesso'], 200);
+
     }
 
 }

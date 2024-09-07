@@ -29,5 +29,4 @@ class EnvioController extends Controller
             throw new \Exception($e->getMessage());
         }
     }
-
 }

@@ -93,14 +93,14 @@ class PedidoService
      * @return array<string, mixed>
      * @throws \Exception
      */
-    public static function enviarRequisicaoPagSeguro(array $body, string $pathAPI): array
+    public static function enviarRequisicaoPagSeguro(array $body, string $pathAPI, $empresa): array
     {
         try {
             $endpoint = env('API_PAGSEGURO') . '/' . $pathAPI;
 
             $response = Http::withHeaders([
                 'Content-Type'  => 'application/json',
-                'Authorization' => 'Bearer ' . env('TOKEN_PAGSEGURO'),
+                'Authorization' => 'Bearer ' . $empresa['token_pagseguro'],
             ])->post($endpoint, $body);
 
             if ($response->failed()) {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CategoriaResource;
 use App\Models\Categoria;
+use Illuminate\Support\Facades\Redis;
 
 class CategoriaController extends Controller
 {
@@ -29,7 +30,20 @@ class CategoriaController extends Controller
      */
     public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        return CategoriaResource::collection(Categoria::all());
+        $cacheKey = "todas_categorias";
+
+        $cachedData = Redis::get($cacheKey);
+
+        if ($cachedData) {
+            $categorias = json_decode($cachedData, true);
+
+            return CategoriaResource::collection(collect($categorias));
+        }
+        $categorias = Categoria::all();
+
+        Redis::setex($cacheKey, 3600, $categorias->toJson());
+
+        return CategoriaResource::collection($categorias);
     }
 
 }

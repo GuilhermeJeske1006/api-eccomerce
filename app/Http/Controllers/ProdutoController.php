@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProdutoRequest;
 use App\Http\Resources\ProdutoResource;
-use App\Models\{Empresa, Produto};
-use Illuminate\Http\{Request, Response};
-use Illuminate\Support\Facades\{DB, Log, Storage};
+use App\Models\{Empresa, Produto, TamanhoProduto};
+use Illuminate\Http\{JsonResponse, Request, Response};
+use Illuminate\Support\Facades\{DB, Log, Redis, Storage};
+use Illuminate\Support\Str;
 
 class ProdutoController extends Controller
 {
@@ -79,38 +80,26 @@ class ProdutoController extends Controller
      *      )
      *  )
      */
-    public function index(int $empresa_id = null, Request $request): \Illuminate\Http\JsonResponse
+    public function index(string $empresa_id = null, Request $request): JsonResponse
     {
         try {
-            $empresa_id = (int) $empresa_id;
-
-            $request->validate([
-                'search'       => 'string',
-                'preco_minimo' => 'numeric',
-                'preco_maximo' => 'numeric',
-                'categoria'    => 'numeric',
-            ]);
-
-            if($empresa_id == null) {
-                return response()->json(["message" => "Empresa não encontrada"], 404);
-            }
-
-            $produto = new Produto();
-            $query   = $produto->queryBuscaProduto((string) $empresa_id, $request);
-
+            $produto  = new Produto();
+            $query    = $produto->queryBuscaProduto($empresa_id, $request);
             $produtos = $query->paginate(15);
 
             foreach ($produtos as $prod) {
-                if($prod->foto) {
+                if ($prod->foto) {
                     $prod->foto = Storage::disk('s3')->url($prod->foto);
                 }
             }
 
-            return response()->json(ProdutoResource::collection($produtos));
-        } catch (\Exception $e) {
-            return response()->json(["message" => "Empresa não encontrada"], 404);
-        }
+            return ProdutoResource::collection($produtos)->response()->setStatusCode(Response::HTTP_OK);
 
+        } catch (\Exception $e) {
+            Log::error('Erro ao buscar produtos: ', ['error' => $e]);
+
+            return ProdutoResource::collection([])->response()->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
     }
 
     /**
@@ -195,53 +184,59 @@ class ProdutoController extends Controller
                 $request['foto'] = null;
             }
 
-            $produto = Produto::create([
-                'nome'            => $request->input('nome'),
-                'valor'           => $request->input('valor'),
-                'largura'         => $request->input('largura'),
-                'altura'          => $request->input('altura'),
-                'comprimento'     => $request->input('comprimento'),
-                'empresa_id'      => $request->input('empresa_id'),
-                'categoria_id'    => $request->input('categoria_id'),
+            $data = [
+                'nome'            => $request['nome'],
+                'valor'           => $request['valor'],
+                'largura'         => $request['largura'],
+                'altura'          => $request['altura'],
+                'comprimento'     => $request['comprimento'],
+                'empresa_id'      => $request['empresa_id'],
+                'categoria_id'    => $request['categoria_id'],
                 'foto'            => $request['foto'],
-                'descricao'       => $request->input('descricao'),
-                'descricao_longa' => $request->input('descricao_longa'),
-                'peso'            => $request->input('peso'),
-                'material'        => $request->input('material'),
-            ]);
+                'descricao'       => $request['descricao'],
+                'descricao_longa' => $request['descricao_longa'],
+                'peso'            => $request['peso'],
+                'material'        => $request['material'],
+                'irParaSite'      => $request['ir_para_site'],
+                'destaque'        => $request['produto_destaque'],
+
+            ];
+
+            $produto = Produto::create($data);
 
             if ($request->has('cores')) {
-                $cores = array_map(function ($cor) use ($produto) {
-                    $cor['produto_id'] = $produto->id;
+                foreach ($request->cores as $cor) {
+                    $data = [
+                        'cor'        => $cor['cor'],
+                        'produto_id' => $produto->id,
+                    ];
 
-                    return $cor;
-                }, $request->input('cores'));
+                    $itemCor = $produto->cores()->create($data);
 
-                $produto->cores()->createMany($cores);
-            }
+                    if($cor['tamanhos']) {
+                        foreach ($cor['tamanhos'] as $tamanho) {
+                            $data = [
+                                'tamanho'    => $tamanho['tamanho'],
+                                'qtdTamanho' => $tamanho['qtdTamanho'],
+                                'cor_id'     => $itemCor->id,
+                                'produto_id' => $produto->id,
+                            ];
 
-            if ($request->has('tamanhos')) {
-                $tamanhos = array_map(function ($tamanho) use ($produto) {
-                    $tamanho['produto_id'] = $produto->id;
-
-                    return $tamanho;
-                }, $request->input('tamanhos'));
-
-                $produto->tamanhos()->createMany($tamanhos);
+                            $produto->tamanhos()->create($data);
+                        }
+                    }
+                }
             }
 
             if (!is_null($request->fotos)) {
-                foreach ($request->fotos as $foto) {
-                    if(!is_null($foto['imagem'])) {
-                        $path = uploadBase64ImageToS3($foto['imagem'], 'produtos');
+                foreach ($request->fotos as $key => $foto) {
 
-                        if (isset($foto['imagem'])) {
-                            $produto->fotos()->create(['produto_id' => $produto->id, 'imagem' => $path]);
-                        } else {
-                            Log::error('Campo "imagem" não encontrado na estrutura de dados das fotos.');
-                        }
+                    $path = uploadBase64ImageToS3($foto, 'produtos');
+
+                    if (isset($foto[$key])) {
+                        $produto->fotos()->create(['produto_id' => $produto->id, 'imagem' => $path]);
                     } else {
-                        $path = null;
+                        Log::error('Campo "imagem" não encontrado na estrutura de dados das fotos.');
                     }
                 }
             }
@@ -304,19 +299,30 @@ class ProdutoController extends Controller
 
     public function show(string $empresa_id, string $id): ProdutoResource
     {
-        $empresa_id = Empresa::findOrFail($empresa_id);
+        $cacheKey = "empresa_{$empresa_id}_produto_{$id}";
 
-        $produto = Produto::find($id);
+        $cachedData = Redis::get($cacheKey);
 
-        if($produto->foto) {
+        if ($cachedData) {
+            $produtoArray = json_decode($cachedData, true);
+            $empresa      = Produto::hydrate([$produtoArray])->first();
+
+            return ProdutoResource::make($empresa);
+        }
+
+        $produto = Produto::findOrFail($id);
+
+        if ($produto->foto) {
             $produto->foto = Storage::disk('s3')->url($produto->foto);
         }
 
-        foreach($produto->fotos as $foto) {
-            if($foto['foto']) {
-                $foto['foto'] = Storage::disk('s3')->url($foto['foto']);
+        foreach ($produto->fotos as $foto) {
+            if ($foto['imagem']) {
+                $foto['imagem'] = Storage::disk('s3')->url($foto['imagem']);
             }
         }
+
+        Redis::setex($cacheKey, 3600, json_encode($produto));
 
         return ProdutoResource::make($produto);
     }
@@ -439,38 +445,138 @@ class ProdutoController extends Controller
     public function update(StoreProdutoRequest $request, string $id): \Illuminate\Http\JsonResponse
     {
         try {
+
+            $cacheKey = "empresa_{$request->empresa_id}_produto_{$id}";
+
+            if (Redis::exists($cacheKey)) {
+                Redis::del($cacheKey);
+            }
+
             $produto = Produto::findOrFail($id);
 
             DB::beginTransaction();
 
-            if ($request->has('foto')) {
-                $request['foto'] = uploadBase64ImageToS3($request['foto'], 'produtos');
-            }
+            $request['foto'] = uploadUpdateBase64ImageToS3($request['foto'], $produto->foto, 'produtos');
 
-            $produto->update($request->all());
+            $data = [
+                'nome'            => $request['nome'],
+                'valor'           => $request['valor'],
+                'largura'         => $request['largura'],
+                'altura'          => $request['altura'],
+                'comprimento'     => $request['comprimento'],
+                'empresa_id'      => $request['empresa_id'],
+                'categoria_id'    => $request['categoria_id'],
+                'foto'            => $request['foto'],
+                'descricao'       => $request['descricao'],
+                'descricao_longa' => $request['descricao_longa'],
+                'peso'            => $request['peso'],
+                'material'        => $request['material'],
+                'irParaSite'      => $request['ir_para_site'],
+                'destaque'        => $request['produto_destaque'],
+            ];
+
+            $produto->update($data);
 
             if ($request->has('cores')) {
-                $produto->cores()->delete();
-                $produto->cores()->createMany($request->input('cores'));
+                $coresRequest = collect($request->cores);
+                $coresBanco   = $produto->cores()->get();
+
+                $corParaExcluir = [];
+                $corParaManter  = [];
+
+                foreach ($coresBanco as $item) {
+                    $existsInRequest = $coresRequest->contains('id', $item->id);
+
+                    if ($existsInRequest) {
+                        $corParaManter[] = $item;
+                    } else {
+                        $corParaExcluir[] = $item;
+                    }
+                }
+
+                foreach ($corParaExcluir as $item) {
+                    $item->delete();
+                }
+
+                foreach ($request->cores as $cor) {
+                    if (isset($cor['id'])) {
+
+                        $produto->cores()->where('id', $cor['id'])->update(['cor' => $cor['cor']]);
+
+                        $itemCor = $produto->cores()->where('id', $cor['id'])->first();
+                        $itemCor->update(['cor' => $cor['cor']]);
+
+                    } else {
+
+                        $itemCor = $produto->cores()->create([
+                            'cor'        => $cor['cor'],
+                            'produto_id' => $produto->id,
+                        ]);
+
+                    }
+
+                    if (isset($cor['tamanhos'])) {
+                        $tamanhosRequest = collect($cor['tamanhos']);
+                        $tamanhosBanco   = TamanhoProduto::where('cor_id', $itemCor->id)->get();
+
+                        $tamanhoParaExcluir = [];
+                        $tamanhoParaManter  = [];
+
+                        foreach ($tamanhosBanco as $itemTamanho) {
+                            $existsInRequest = $tamanhosRequest->contains('id', $itemTamanho->id);
+
+                            if ($existsInRequest) {
+                                $tamanhoParaManter[] = $itemTamanho;
+                            } else {
+                                $tamanhoParaExcluir[] = $itemTamanho;
+                            }
+                        }
+
+                        foreach ($tamanhoParaExcluir as $itemTamanho) {
+                            $itemTamanho->delete();
+                        }
+
+                        foreach ($cor['tamanhos'] as $tamanho) {
+                            if (isset($tamanho['id'])) {
+
+                                $produto->tamanhos()->where('id', $tamanho['id'])->update([
+                                    'tamanho'    => $tamanho['tamanho'],
+                                    'qtdTamanho' => $tamanho['qtdTamanho'],
+                                    'produto_id' => $produto->id,
+                                    'cor_id'     => $itemCor->id,
+                                ]);
+                            } else {
+                                $produto->tamanhos()->create([
+                                    'tamanho'    => $tamanho['tamanho'],
+                                    'qtdTamanho' => $tamanho['qtdTamanho'],
+                                    'produto_id' => $produto->id,
+                                    'cor_id'     => $itemCor->id,
+                                ]);
+                            }
+                        }
+                    }
+                }
             }
 
-            if ($request->has('tamanhos')) {
-                $produto->tamanhos()->delete();
-                $produto->tamanhos()->createMany($request->input('tamanhos'));
-            }
+            if (isset($request->imagem)) {
 
-            if($request->has('fotos')) {
-                $produto->fotos()->delete();
+                foreach ($request->imagem as $foto) {
+                    if(isset($foto)) {
 
-                foreach($request->fotos as $foto) {
-                    $path = uploadBase64ImageToS3($foto['imagem'], 'produtos');
-                    $produto->fotos()->create(['foto' => $path, 'produto_id' => $produto->id]);
+                        if(Str::contains($foto, 'data:image')) {
+                            $path = uploadBase64ImageToS3($foto, 'produtos');
+                        } else {
+                            $path = $foto;
+                        }
+
+                        $produto->fotos()->updateOrCreate(['produto_id' => $produto->id, 'imagem' => $path]);
+                    }
                 }
             }
 
             DB::commit();
 
-            return response()->json(["message" => "Produto atualizado com sucesso", "produto" => $produto], Response::HTTP_OK);
+            return response()->json(["message" => "Produto atualizado com sucesso"], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -544,7 +650,33 @@ class ProdutoController extends Controller
         try {
             $produto = Produto::findOrFail($id);
 
-            $produto->delete();
+            if(!$produto) {
+                return response()->json(["message" => "Produto não encontrado"], Response::HTTP_NOT_FOUND);
+            }
+
+            if(isset($produto->itemPedido()->first()->id)) {
+
+                $produto->forceDeleted();
+
+            } else {
+
+                if($produto->foto) {
+                    deleteImageFromS3($produto->foto);
+                }
+
+                foreach ($produto->fotos as $foto) {
+                    if($foto->imagem) {
+                        deleteImageFromS3($foto->imagem);
+                    }
+                }
+                $produto->cores()->delete();
+
+                $produto->tamanhos()->delete();
+
+                $produto->fotos()->delete();
+
+                $produto->delete();
+            }
 
             return response()->json(["message" => "Produto deletado com sucesso"], Response::HTTP_OK);
         } catch (\Throwable $th) {

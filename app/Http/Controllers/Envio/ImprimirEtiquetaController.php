@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Envio;
 
 use App\Http\Controllers\Controller;
+use App\Models\Empresa;
 use App\Services\EnvioService;
 use Illuminate\Http\Request;
 
@@ -32,7 +33,8 @@ class ImprimirEtiquetaController extends Controller
      *                     "9cc21d73-c2a8-4c17-b931-96d49fc0b81c"
      *                 }
      *             }
-     *         )
+     *         ),
+     *        @OA\Property(property="empresa_id", type="integer", example=1)
      *     ),
      *
      *     @OA\Response(
@@ -89,16 +91,14 @@ class ImprimirEtiquetaController extends Controller
     public function __invoke(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            // Recupera o campo 'pedidos' do request, que deve ser um array
             $pedidos = $request->input('pedidos', []);
 
-            // Valida se 'pedidos' é um array e contém valores
             if (!is_array($pedidos) || empty($pedidos)) {
                 throw new \Exception('Pedido inválido');
             }
+            $empresa = Empresa::findOrFail($request->empresa_id);
 
-            // Chama o serviço para gerar a etiqueta com os pedidos válidos
-            $pedido = EnvioService::imprimirEtiqueta($pedidos);
+            $pedido = EnvioService::imprimirEtiqueta($pedidos, $empresa);
 
             return response()->json([
                 'message' => 'Etiqueta gerada com sucesso',
@@ -111,5 +111,4 @@ class ImprimirEtiquetaController extends Controller
             ], 400);
         }
     }
-
 }

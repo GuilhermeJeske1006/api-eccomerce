@@ -127,13 +127,19 @@ class DescontoController extends Controller
                 ], 404);
             }
 
-            $valores = ProdutoService::calculaDesconto($produto, $request);
+            $valorFinal = ProdutoService::calculaDesconto($produto, $request);
+
+            if(DescontoProduto::where('produto_id', $request->produto_id)->exists()) {
+                foreach (DescontoProduto::where('produto_id', $request->produto_id)->get() as $desconto) {
+                    $desconto->delete();
+                }
+            }
 
             DescontoProduto::create([
                 'produto_id'  => $request->produto_id,
-                'porcentagem' => $valores['valorPorcentagem'],
-                'desconto'    => $request['valorDesconto'],
-                'valor_final' => $valores['valorFinal'],
+                'porcentagem' => $request['porcentagem'],
+                'desconto'    => $request['desconto'],
+                'valor_final' => $valorFinal,
             ]);
 
             return response()->json([
@@ -241,9 +247,12 @@ class DescontoController extends Controller
      *     )
      * )
      */
-    public function destroy(DescontoProduto $descontoProduto): \Illuminate\Http\JsonResponse
+    public function destroy(int $produto): \Illuminate\Http\JsonResponse
     {
         try {
+
+            $descontoProduto = DescontoProduto::where('produto_id', $produto)->first();
+
             $descontoProduto->delete();
 
             return response()->json([

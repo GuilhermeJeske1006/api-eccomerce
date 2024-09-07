@@ -38,8 +38,8 @@ class EnvioPedido extends Model
      *     id: int
      * } $pedido Associative array com o ID do pedido.
      * @param array{
-     *     agencia: string,
-     *     servico: string,
+     *     agencia: int,
+     *     servico: int,
      *     vlrFrete: float
      * } $request Associative array com os dados do envio.
      * @return EnvioPedido
