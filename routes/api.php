@@ -6,6 +6,7 @@ use App\Http\Controllers\Frete\CalcularFreteController;
 use App\Http\Controllers\Imagem\ExcluirImagemController;
 use App\Http\Controllers\Password\AlterarSenhaController;
 use App\Http\Controllers\Pedidos\{BoletoController, CreditoController, PixController, WebhookController};
+use App\Http\Controllers\Status\{StatusEnvioController, StatusPagamentoController};
 use App\Http\Controllers\{BlogController, CategoriaController, ComentarioBlogController, ComentarioController, DescontoController, EmpresaController, EnderecoController, EnvioController, GestaoPedidoController, PedidoController, ProdutoController, SobreController, TamanhoController, UsuarioController};
 use Illuminate\Support\Facades\{Route};
 
@@ -89,3 +90,6 @@ Route::put('/sobre/editar/{empresa_id}', [SobreController::class, 'update']);
 Route::delete('/excluir-imagem', ExcluirImagemController::class);
 
 Route::get('/pedidos/gestao/{empresa_id}', [GestaoPedidoController::class, 'index']);
+
+Route::get('/status-envio', StatusEnvioController::class);
+Route::get('/status-pagamento', StatusPagamentoController::class);

@@ -123,8 +123,9 @@ class PagarEnvioController extends Controller
                 $envioPedido = EnvioPedido::where('codigo_rastreio', $order['id'])->first();
 
                 if ($envioPedido) {
+                    $status_envio_id = EnvioService::buscaStatusEnvio($order['status']);
                     $envioPedido->update([
-                        'status' => $order['status'],
+                        'status_envio_id' => $status_envio_id,
                     ]);
                 } else {
                     throw new \Exception("EnvioPedido com o id {$order['id']} não encontrado.");

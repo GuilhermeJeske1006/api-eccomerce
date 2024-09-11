@@ -262,4 +262,22 @@ class EnvioService
             throw new \Exception($e->getMessage());
         }
     }
+
+    public static function buscaStatusEnvio(string $status)
+    {
+        switch ($status) {
+            case 'pending':
+                return 1;
+            case 'released':
+                return 2;
+            case 'posted':
+                return 3;
+            case 'delivered':
+                return 4;
+            case 'canceled':
+                return 5;
+            default:
+                return 6;
+        }
+    }
 }

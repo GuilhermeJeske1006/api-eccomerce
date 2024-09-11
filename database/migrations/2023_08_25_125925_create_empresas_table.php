@@ -21,8 +21,8 @@ return new class () extends Migration {
             $table->string('telefone')->nullable();
             $table->string('cor');
             $table->string('email_melhor_envio')->nullable();
-            $table->string('token_melhor_envio')->nullable();
-            $table->string('token_pagseguro')->nullable();
+            $table->longText('token_melhor_envio')->nullable();
+            $table->mediumText('token_pagseguro')->nullable();
             $table->string('cnpj')->unique();
             $table->text('descricao')->nullable();
             $table->string('palavras_chaves')->nullable();

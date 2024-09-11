@@ -100,10 +100,18 @@ class ImprimirEtiquetaController extends Controller
 
             $pedido = EnvioService::imprimirEtiqueta($pedidos, $empresa);
 
+            if(isset($pedido['errors'])) {
+                return response()->json([
+                    'message' => 'Erro ao gerar etiqueta',
+                    'error'   => $pedido['errors'],
+                ], 400);
+            }
+
             return response()->json([
                 'message' => 'Etiqueta gerada com sucesso',
                 'data'    => $pedido,
             ], 200);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Erro ao gerar etiqueta',

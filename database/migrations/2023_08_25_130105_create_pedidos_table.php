@@ -13,7 +13,6 @@ return new class () extends Migration {
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
             $table->dateTime("dataPedido");
-            $table->string('status');
             $table->string('reference');
             $table->decimal('vlr_frete')->nullable();
             $table->unsignedBigInteger('empresa_id');

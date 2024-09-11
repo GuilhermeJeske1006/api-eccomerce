@@ -76,8 +76,9 @@ class RastrearEnvioController extends Controller
                 $envioPedido = EnvioPedido::where('codigo_rastreio', $key)->first();
 
                 if ($envioPedido) {
+                    $status_envio_id = EnvioService::buscaStatusEnvio($item['status']);
                     $envioPedido->update([
-                        'status' => $item['status'],
+                        'status_envio_id' => $status_envio_id,
                     ]);
                 } else {
                     $erroPedidos[] = "EnvioPedido com o id {$key} não encontrado.";

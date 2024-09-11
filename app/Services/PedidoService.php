@@ -112,4 +112,26 @@ class PedidoService
             throw new \Exception($e->getMessage());
         }
     }
+
+    public static function buscaStatusPedido(string $status)
+    {
+        switch ($status) {
+            case 'PAID':
+                return 2;
+            case 'WAITING_PAYMENT':
+                return 1;
+            case 'IN_ANALYSIS':
+                return 3;
+            case 'DECLINED':
+                return 4;
+            case 'CANCELED':
+                return 5;
+            case 'WAITING':
+                return 6;
+            case 'EXPIRED':
+                return 6;
+            default:
+                return 0;
+        }
+    }
 }

@@ -1,7 +1,7 @@
 <?php
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\{Storage};
+use Illuminate\Support\Facades\{Redis, Storage};
 
 function uploadBase64ImageToS3(string $base64Image, string $directory): string
 {
@@ -103,4 +103,26 @@ function separarDDDTelefone(string $telefone): array
         'ddd'    => $ddd,
         'numero' => $numero,
     ];
+}
+
+/**
+ * Retrieve data from Redis or cache the result of the callback.
+ *
+ * @param string $cacheKey
+ * @param int $ttl
+ * @param callable $callback
+ * @return mixed
+ */
+function getOrSetCache($cacheKey, $ttl, callable $callback)
+{
+    $cachedData = Redis::get($cacheKey);
+
+    if ($cachedData) {
+        return json_decode($cachedData, true);
+    }
+
+    $data = $callback();
+    Redis::setex($cacheKey, $ttl, json_encode($data));
+
+    return $data;
 }

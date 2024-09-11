@@ -14,7 +14,7 @@ class EnvioPedido extends Model
 
     protected $fillable = [
         'codigo_rastreio',
-        'status',
+        'status_envio_id',
         'agencia',
         'servico',
         'prazo',
@@ -28,9 +28,13 @@ class EnvioPedido extends Model
 
     public function pedido(): BelongsTo
     {
-        return $this->belongsTo(Pedido::class);
+        return $this->belongsTo(Pedido::class, 'pedido_id');
     }
 
+    public function statusEnvio(): BelongsTo
+    {
+        return $this->belongsTo(StatusEnvio::class);
+    }
     /**
      * Cria um novo envio de pedido.
      *
@@ -49,7 +53,7 @@ class EnvioPedido extends Model
         $envio                  = new EnvioPedido();
         $envio->pedido_id       = $pedido['id'];
         $envio->codigo_rastreio = uniqid();
-        $envio->status          = 'Waiting for product payment';
+        $envio->status_envio_id = 1;
         $envio->agencia         = $request['agencia'];
         $envio->servico         = $request['servico'];
         $envio->valor           = $request['vlrFrete'];

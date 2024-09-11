@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pedidos;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
+use App\Services\{PedidoService};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -22,8 +23,10 @@ class WebhookController extends Controller
 
             Log::info('Webhook recebido', $request->all());
 
+            $status_id = PedidoService::buscaStatusPedido($request->charges[0]['status']);
+
             $pedido->update([
-                'status' => $request->charges[0]['status'],
+                'status_pedido_id' => $status_id,
             ]);
 
             return response()->json(['status' => 'ok', 'pedido' => $pedido], 200);

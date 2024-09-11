@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PedidoResource;
 use App\Models\{Pedido};
-use Illuminate\Http\{JsonResponse};
+use Illuminate\Http\{Request};
 
 class GestaoPedidoController extends Controller
 {
@@ -40,12 +40,12 @@ class GestaoPedidoController extends Controller
      * @param  int  $empresa_id  O ID da empresa cujos pedidos serão buscados.
      * @return \Illuminate\Http\JsonResponse Retorna uma coleção de recursos de pedidos ou uma mensagem de erro em caso de falha.
      */
-    public function index(int $empresa_id): JsonResponse
+    public function index(int $empresa_id, Request $request)
     {
         try {
-            $pedidos = Pedido::where('empresa_id', $empresa_id)->orderBy('created_at', 'desc')->paginate();
+            $pedidos = Pedido::queryBuscaPedido($request->all(), $empresa_id);
 
-            return PedidoResource::collection($pedidos)->response();
+            return PedidoResource::collection($pedidos)->response()->setStatusCode(200);
 
         } catch (\Throwable $th) {
             return PedidoResource::collection(null)->response()->setStatusCode(500, $th->getMessage());

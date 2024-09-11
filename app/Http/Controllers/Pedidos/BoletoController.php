@@ -96,6 +96,7 @@ class BoletoController extends Controller
 
             $response = PedidoService::enviarRequisicaoPagSeguro($body, 'orders', $empresa);
 
+            // return response()->json($response);
             $pedido = Pedido::criarPedido($usuario, $response['reference_id'], $totalVlr, (float) $request->vlrFrete, 'BOLETO');
 
             PedidoService::inserirItensPedido($request->carrinho, $pedido->id);

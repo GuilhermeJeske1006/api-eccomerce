@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, HasOne};
 use Illuminate\Notifications\Notifiable;
 
 class Pedido extends Model
@@ -17,7 +17,6 @@ class Pedido extends Model
     protected $fillable = [
         'id',
         'dataPedido',
-        'status',
         'reference',
         'usuario_id',
         'vlr_total',
@@ -28,6 +27,7 @@ class Pedido extends Model
         'envio_id',
         'status_envio',
         'transportadora_id',
+        'status_pedido_id',
     ];
 
     public function itemPedido(): HasMany
@@ -50,9 +50,19 @@ class Pedido extends Model
         return $this->belongsTo(Endereco::class);
     }
 
-    public function envio(): BelongsTo
+    public function envio(): HasOne
     {
-        return $this->belongsTo(EnvioPedido::class);
+        return $this->hasOne(EnvioPedido::class, 'envio_id');
+    }
+
+    public function statusEnvio(): BelongsTo
+    {
+        return $this->belongsTo(StatusEnvio::class);
+    }
+
+    public function statusPedido(): BelongsTo
+    {
+        return $this->belongsTo(StatusPedido::class);
     }
 
     /**
@@ -77,16 +87,16 @@ class Pedido extends Model
         string $formaPagamento
     ): Pedido {
         try {
-            $pedido                 = new Pedido();
-            $pedido->dataPedido     = now();
-            $pedido->vlr_total      = $totalVlr;
-            $pedido->formaPagamento = $formaPagamento;
-            $pedido->endereco_id    = $usuario['endereco_id'];
-            $pedido->vlr_frete      = $vlrFrete;
-            $pedido->empresa_id     = $usuario['empresa_id'];
-            $pedido->status         = "WAITING_PAYMENT";
-            $pedido->usuario_id     = $usuario['id'];
-            $pedido->reference      = $referenceId;
+            $pedido                   = new Pedido();
+            $pedido->dataPedido       = now();
+            $pedido->vlr_total        = $totalVlr;
+            $pedido->formaPagamento   = $formaPagamento;
+            $pedido->endereco_id      = $usuario['endereco_id'];
+            $pedido->vlr_frete        = $vlrFrete;
+            $pedido->empresa_id       = $usuario['empresa_id'];
+            $pedido->status_pedido_id = 1;
+            $pedido->usuario_id       = $usuario['id'];
+            $pedido->reference        = $referenceId;
             $pedido->save();
 
             return $pedido;
@@ -94,4 +104,38 @@ class Pedido extends Model
             throw new \Exception($th->getMessage());
         }
     }
+
+    public static function queryBuscaPedido(array $filtro, int $empresa_id): object
+    {
+        try {
+
+            $query = self::query()
+                ->select('pedidos.*')
+                ->where('pedidos.empresa_id', $empresa_id)
+                ->orderBy('pedidos.created_at', 'desc');
+
+            if (isset($filtro['id']) && $filtro['id'] !== null) {
+                $query->where('pedidos.id', $filtro['id']);
+            }
+
+            if (isset($filtro['status_envio']) && $filtro['status_envio'] !== null) {
+                $query->join('envio_pedidos', 'pedidos.id', '=', 'envio_pedidos.pedido_id')
+                    ->where('envio_pedidos.status_envio_id', $filtro['status_envio']);
+            }
+
+            if (isset($filtro['status_pagamento']) && $filtro['status_pagamento'] !== null) {
+                $query->where('pedidos.status_pedido_id', $filtro['status_pagamento']);
+            }
+
+            if (isset($filtro['status_metodo']) && $filtro['status_metodo'] !== null) {
+                $query->where('pedidos.formaPagamento', $filtro['status_metodo']);
+            }
+
+            return $query->paginate();
+        } catch (\Throwable $th) {
+            return $th;
+        }
+
+    }
+
 }

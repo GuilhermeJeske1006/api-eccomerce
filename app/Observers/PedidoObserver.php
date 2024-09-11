@@ -16,7 +16,7 @@ class PedidoObserver
     {
         // Log::info('Pedido atualizado', $pedido->toArray());
 
-        if($pedido->status == 'PAID') {
+        if($pedido->status_pedido_id == 2) {
 
             $usuario = User::find($pedido->usuario_id);
 

@@ -26,17 +26,18 @@ class PedidoResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "id"              => $this->id,
-            "dt_item"         => $this->dataPedido,
-            "status"          => $this->status,
-            "reference"       => $this->reference,
-            "usuario_id"      => $this->usuario_id,
-            "usuario"         => $this->usuario,
-            'endereco'        => $this->usuario->endereco,
-            'valor'           => $this->vlr_total,
-            'forma_pagamento' => $this->formaPagamento,
-            "envio"           => EnvioPedido::where('pedido_id', $this->id)->first(),
-            "item_pedidos"    => $this->itemPedido->map(function (ItemPedido $item) {
+            "id"                 => $this->id,
+            "dt_item"            => $this->dataPedido,
+            "reference"          => $this->reference,
+            "usuario_id"         => $this->usuario_id,
+            "usuario"            => $this->usuario,
+            'endereco'           => $this->usuario->endereco,
+            'valor'              => $this->vlr_total,
+            'forma_pagamento'    => $this->formaPagamento,
+            'status_pedido_nome' => $this->statusPedido->nome_status,
+            'status_pedido_id'   => $this->status_pedido_id,
+            "envio"              => EnvioResource::make(EnvioPedido::where('pedido_id', $this->id)->first()) ,
+            "item_pedidos"       => $this->itemPedido->map(function (ItemPedido $item) {
                 return [
                     "id"         => $item->id,
                     "quantidade" => $item->quantidade,

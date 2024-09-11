@@ -174,7 +174,7 @@ class PedidoController extends Controller
     {
         $pedido = Pedido::findOrFail($id);
 
-        $pedido->status = 'PAID';
+        $pedido->status_pedido_id = 2;
         $pedido->save();
 
         return response()->json(['message' => 'Pedido atualizado com sucesso'], 200);

@@ -3156,6 +3156,52 @@
                 ]
             }
         },
+        "/api/status-envio": {
+            "get": {
+                "tags": [
+                    "StatusEnvio"
+                ],
+                "summary": "Retrieve all status envio data",
+                "description": "Fetches all status envio records and caches them in Redis for 1 hour.",
+                "operationId": "getStatusEnvio",
+                "responses": {
+                    "200": {
+                        "description": "A list of status envio records",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/status-pagamento": {
+            "get": {
+                "tags": [
+                    "StatusPagamento"
+                ],
+                "summary": "Retrieve all status pagamento data",
+                "description": "Fetches all status pagamento records and caches them in Redis for 1 hour.",
+                "operationId": "getStatusPagamento",
+                "responses": {
+                    "200": {
+                        "description": "A list of status pagamento records",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/api/tamanhos-para-cor/{cor_id}/{produto_id}": {
             "get": {
                 "tags": [
@@ -3487,6 +3533,14 @@
         {
             "name": "Produto",
             "description": "Produto"
+        },
+        {
+            "name": "StatusEnvio",
+            "description": "StatusEnvio"
+        },
+        {
+            "name": "StatusPagamento",
+            "description": "StatusPagamento"
         },
         {
             "name": "Tamanho",

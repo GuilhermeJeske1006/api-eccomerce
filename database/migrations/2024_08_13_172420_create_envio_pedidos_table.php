@@ -13,7 +13,6 @@ return new class () extends Migration {
         Schema::create('envio_pedidos', function (Blueprint $table) {
             $table->id();
             $table->string('codigo_rastreio')->unique();
-            $table->string('status')->nullable();
             $table->integer('agencia')->nullable();
             $table->integer('servico')->nullable();
             $table->string('prazo')->nullable();

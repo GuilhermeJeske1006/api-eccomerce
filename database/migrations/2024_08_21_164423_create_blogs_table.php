@@ -40,6 +40,13 @@ return new class () extends Migration {
      */
     public function down(): void
     {
+
         Schema::dropIfExists('blogs');
+        Schema::table('comentario_blogs', function (Blueprint $table) {
+            $table->dropForeign(['blog_id']);
+            $table->dropColumn('blog_id');
+        });
+        Schema::dropIfExists('comentario_blogs');
+
     }
 };
