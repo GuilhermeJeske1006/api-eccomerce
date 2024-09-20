@@ -103,11 +103,18 @@ class UsuarioController extends Controller
 
             $data['password'] = Hash::make($data['password']);
 
-            User::create($data);
+             // Criar o usuário
+            $user = User::create($data);
 
-            return response()->json(["message" => "Usuario cadastrado com sucesso"], 201);
+            // Autenticar o usuário recém-criado
+            Auth::login($user);
+
+            // Criar token JWT para o usuário autenticado
+            $token = $user->createToken('JWT')->plainTextToken;
+
+            return response()->json(["message" => "Usuario cadastrado com sucesso", "token" => $token, 'status' => 201] , 201);
         } catch (\Throwable $th) {
-            return response()->json(['erro' => $th->getMessage(), 'message' => 'Erro ao cadastrar usuario'], Response::HTTP_BAD_REQUEST);
+            return response()->json(['erro' => $th->getMessage(), 'message' => 'Erro ao cadastrar usuario', 'status' => Response::HTTP_BAD_REQUEST], Response::HTTP_BAD_REQUEST);
         }
     }
 
