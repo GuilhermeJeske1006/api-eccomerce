@@ -1329,6 +1329,69 @@
                 }
             }
         },
+        "/api/endereco/cep/{cep}": {
+            "get": {
+                "tags": [
+                    "Endereco"
+                ],
+                "summary": "Recebe um cep e retorna informações do CEP",
+                "operationId": "38b91af5e441ff06b61c33dd790f0d0b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "cep"
+                                ],
+                                "properties": {
+                                    "cep": {
+                                        "description": "CEP do endereço",
+                                        "type": "string",
+                                        "example": "01001000"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Dados do CEP",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "description": "Dados retornados da API ViaCEP",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "CEP não informado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "CEP não informado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/endereco/criar": {
             "post": {
                 "tags": [
@@ -1467,69 +1530,6 @@
                         "description": "OK",
                         "content": {
                             "application/json": {}
-                        }
-                    }
-                }
-            }
-        },
-        "/api/endereco/cep/{cep}": {
-            "get": {
-                "tags": [
-                    "Endereco"
-                ],
-                "summary": "Recebe um cep e retorna informações do CEP",
-                "operationId": "38b91af5e441ff06b61c33dd790f0d0b",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "cep"
-                                ],
-                                "properties": {
-                                    "cep": {
-                                        "description": "CEP do endereço",
-                                        "type": "string",
-                                        "example": "01001000"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Dados do CEP",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "description": "Dados retornados da API ViaCEP",
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "CEP não informado",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "CEP não informado"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
                         }
                     }
                 }
@@ -2526,6 +2526,38 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/api/produto/destaque/{empresa_id}": {
+            "get": {
+                "tags": [
+                    "Produto"
+                ],
+                "summary": "Retorna uma lista de produtos em destaque",
+                "description": "Retorna uma lista de produtos em destaque",
+                "operationId": "DestaqueProdutoController",
+                "parameters": [
+                    {
+                        "name": "empresa_id",
+                        "in": "path",
+                        "description": "Id da empresa",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Nenhum produto encontrado"
                     }
                 }
             }
