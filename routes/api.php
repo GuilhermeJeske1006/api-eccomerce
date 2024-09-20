@@ -8,6 +8,8 @@ use App\Http\Controllers\Password\AlterarSenhaController;
 use App\Http\Controllers\Pedidos\{BoletoController, CreditoController, PixController, WebhookController};
 use App\Http\Controllers\Status\{StatusEnvioController, StatusPagamentoController};
 use App\Http\Controllers\{BlogController, CategoriaController, ComentarioBlogController, ComentarioController, DescontoController, EmpresaController, EnderecoController, EnvioController, GestaoPedidoController, PedidoController, ProdutoController, SobreController, TamanhoController, UsuarioController};
+use App\Http\Controllers\Produto\DestaqueProdutoController;
+use App\Http\Controllers\Produto\SiteProdutoController;
 use Illuminate\Support\Facades\{Route};
 
 /*
@@ -44,6 +46,9 @@ Route::get('/endereco/cep/{cep}', ViaCepController::class);
 Route::get('/categorias', [CategoriaController::class, 'index']);
 
 Route::get('/tamanhos-para-cor/{corSelecionada}/{produtoId}', [TamanhoController::class, 'index']);
+
+Route::get('/produto/destaque/{empresa_id}', DestaqueProdutoController::class);
+Route::get('/produto/site/{empresa_id}', SiteProdutoController::class);
 
 Route::get('/produto/{empresa_id}', [ProdutoController::class, 'index']);
 Route::get('/produto/{empresa_id}/{id}', [ProdutoController::class, 'show']);

@@ -683,4 +683,5 @@ class ProdutoController extends Controller
             return response()->json(["message" => "Erro ao deletar produto", 'erro' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    
 }
