@@ -33,7 +33,7 @@ return new class () extends Migration {
         });
 
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('empresa_id');
+            $table->unsignedBigInteger('empresa_id')->nullable();
             $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete("cascade");
             ;
         });
