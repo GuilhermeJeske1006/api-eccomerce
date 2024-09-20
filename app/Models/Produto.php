@@ -130,4 +130,18 @@ class Produto extends Model
 
         return $query;
     }
+
+    public function queryBuscaProdutoDestaque(string $id, object $request)
+    {
+        $query = self::query();
+
+        if (isset($id)) {
+            $query->where('empresa_id', $id);
+        }
+
+        // $query->where('destaque', true);
+        // $query->where('ativo', true);
+
+        return $query;
+    }
 }
