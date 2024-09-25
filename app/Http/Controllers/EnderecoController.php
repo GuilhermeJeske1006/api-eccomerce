@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEnderecoRequest;
-use App\Models\{Endereco};
+use App\Models\{Endereco, User};
 
 class EnderecoController extends Controller
 {
@@ -94,6 +94,10 @@ class EnderecoController extends Controller
             }
 
             $endereco->update($request->all());
+
+            if($request->usuario_id){
+                User::find($request->usuario_id)->update(['endereco_id' => $endereco->id]);
+            }
 
             return response()->json(["message" => "Endereco atualizado com sucesso"], 200);
         } catch (\Exception $e) {
